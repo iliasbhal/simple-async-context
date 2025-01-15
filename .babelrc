@@ -1,0 +1,17 @@
+{
+  "plugins": [
+    "@babel/plugin-proposal-explicit-resource-management",
+    "@babel/plugin-transform-runtime",
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "decoratorsBeforeExport": true
+      }
+    ]
+  ],
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-env",
+    "@babel/preset-typescript"
+  ]
+}
