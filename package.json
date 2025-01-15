@@ -1,7 +1,7 @@
 {
   "version": "0.0.1",
   "name": "simple-async-context",
-  "description": "Easy to use async context",
+  "description": "Async context for node and the browser",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
   "source": "src/index.ts",
@@ -12,11 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/iliasbhal/simple-async-context.git"
   },
-  "keywords": [
-    "oop",
-    "ddd",
-    "react"
-  ],
+  "keywords": [],
   "author": "Ilias Bhallil <ilias.bhal@gmail.com>",
   "license": "MIT",
   "bugs": {
