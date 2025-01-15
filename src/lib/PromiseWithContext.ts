@@ -1,32 +1,34 @@
-import { SimpleAsyncContext } from "./SimpleAsyncContext";
+import { AsyncContext } from "./AsyncContext";
+
+const OriginalPromise = Promise;
 
 export const PromiseWithContext = function (callback) {
-  const fork = SimpleAsyncContext.fork()
+  const fork = AsyncContext.fork()
 
   const originalPromise = new OriginalPromise((resolve, reject) => {
     const wrapResolve = fork.createResolver(resolve);
     const wrapReject = fork.createResolver(reject);
     callback(wrapResolve, wrapReject);
-    fork.reset();
   });
+  fork.reset();
 
 
   this.then = function (callback) {
-    const fork2 = SimpleAsyncContext.fork()
+    const fork2 = AsyncContext.fork()
     return originalPromise.then(
       fork2.createResolver(callback)
     )
   }
 
   this.catch = function (callback) {
-    const fork2 = SimpleAsyncContext.fork()
+    const fork2 = AsyncContext.fork()
     return originalPromise.catch(
       fork2.createResolver(callback)
     )
   }
 
   this.finally = function (callback) {
-    const fork2 = SimpleAsyncContext.fork()
+    const fork2 = AsyncContext.fork()
     return originalPromise.finally(
       fork2.createResolver(callback)
     )
@@ -35,7 +37,6 @@ export const PromiseWithContext = function (callback) {
 
 // Ensure that all methods of the original Promise 
 // are available on the new PromiseWithContext
-const OriginalPromise = Promise;
 Object.getOwnPropertyNames(Promise).forEach((method) => {
   if (typeof Promise[method] === 'function') {
     PromiseWithContext[method] = OriginalPromise[method].bind(PromiseWithContext);
