@@ -1,5 +1,7 @@
 import { Polyfill } from './Polyfill';
 
+type AnyFunction = (...args: any) => any;
+
 class AsyncVariable {
   constructor() {
     Polyfill.ensureEnabled();
@@ -9,17 +11,17 @@ class AsyncVariable {
     return AsyncContext.getVariableData(this);
   }
 
-  run(value: any, callback: Function) {
+  run<Fn extends AnyFunction>(value: any, callback: Fn) {
     return AsyncContext.runWithData(this, value, callback);
   }
 
   withData(data: any) {
     const self = this;
     return {
-      run(callback: Function) {
+      run<Fn extends AnyFunction>(callback: Fn) {
         return AsyncContext.runWithData(self, data, callback);
       },
-      wrap(callback: Function) {
+      wrap<Fn extends AnyFunction>(callback: Fn) {
         return AsyncContext.wrapWithData(self, data, callback);
       },
       fork() {
@@ -30,7 +32,7 @@ class AsyncVariable {
 }
 
 class AsyncSnapshot {
-  run(callback: Function) {
+  run<Fn extends AnyFunction>(callback: Fn) {
     // TODO;
   }
 }
@@ -53,11 +55,11 @@ export class AsyncContext {
     return AsyncContext.forkWithData(null, null);
   }
 
-  static run(callback: Function) {
+  static run<Fn extends AnyFunction>(callback: Fn) {
     return AsyncContext.runWithData(null, null, callback);
   }
 
-  static wrap(callback: Function) {
+  static wrap<Fn extends AnyFunction>(callback: Fn) {
     return AsyncContext.wrapWithData(null, null, callback);
   }
 
@@ -69,13 +71,15 @@ export class AsyncContext {
     return fork
   }
 
-  static wrapWithData(variable: AsyncVariable | null, data: any, callback: Function): Function {
-    return (...args) => {
+  static wrapWithData<Fn extends AnyFunction>(variable: AsyncVariable | null, data: any, callback: Fn): Fn {
+    const wrapped = (...args) => {
       return AsyncContext.runWithData(variable, data, () => callback(...args));
-    }
+    };
+
+    return wrapped as Fn;
   }
 
-  static runWithData(variable: AsyncVariable | null, data: any, callback: Function): Function {
+  static runWithData<Fn extends (...args: any) => any>(variable: AsyncVariable | null, data: any, callback: Fn): ReturnType<Fn> {
     const asyncfork = AsyncContext.forkWithData(variable, data);
     const result = callback();
     asyncfork.reset();
