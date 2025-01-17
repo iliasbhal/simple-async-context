@@ -1,7 +1,7 @@
-import { createCallbackWithContext } from './createCallbackWithContext';
+import { createHofWithContext } from './createHofWithContext';
 
 export const timers = {
-  setTimeout: createCallbackWithContext(setTimeout),
-  setInterval: createCallbackWithContext(setInterval),
-  setImmediate: createCallbackWithContext(setImmediate),
+  setTimeout: createHofWithContext(setTimeout),
+  setInterval: createHofWithContext(setInterval),
+  setImmediate: createHofWithContext(setImmediate),
 };

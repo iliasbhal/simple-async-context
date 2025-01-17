@@ -1,5 +1,5 @@
 import { AsyncContext } from "../lib/AsyncContext";
-import { createCallbackWithContext } from './createCallbackWithContext';
+import { createHofWithContext } from './createHofWithContext';
 
 const OriginalPromise = Promise;
 
@@ -13,9 +13,9 @@ export const PromiseWithContext = function (callback) {
   });
 
 
-  this.then = createCallbackWithContext(originalPromise.then.bind(originalPromise))
-  this.catch = createCallbackWithContext(originalPromise.catch.bind(originalPromise))
-  this.finally = createCallbackWithContext(originalPromise.finally.bind(originalPromise))
+  this.then = createHofWithContext(originalPromise.then.bind(originalPromise))
+  this.catch = createHofWithContext(originalPromise.catch.bind(originalPromise))
+  this.finally = createHofWithContext(originalPromise.finally.bind(originalPromise))
 };
 
 // Ensure that all methods of the original Promise 
