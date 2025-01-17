@@ -1,19 +1,7 @@
-import { AsyncContext } from "../lib/AsyncContext";
-
-type AnyFunction = (...args: any) => any;
-
-const createTimerPolyfill = (originalTimer: AnyFunction) => {
-  return (callback: AnyFunction, ...args) => {
-    const fork = AsyncContext.fork()
-    const resolver = fork.createResolver(callback);
-    const result = originalTimer(resolver, ...args);
-    fork.reset();
-    return result
-  }
-}
+import { createCallbackWithContext } from './createCallbackWithContext';
 
 export const timers = {
-  setTimeout: createTimerPolyfill(setTimeout),
-  setInterval: createTimerPolyfill(setInterval),
-  setImmediate: createTimerPolyfill(setImmediate),
+  setTimeout: createCallbackWithContext(setTimeout),
+  setInterval: createCallbackWithContext(setInterval),
+  setImmediate: createCallbackWithContext(setImmediate),
 };

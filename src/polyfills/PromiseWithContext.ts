@@ -1,4 +1,5 @@
 import { AsyncContext } from "../lib/AsyncContext";
+import { createCallbackWithContext } from './createCallbackWithContext';
 
 const OriginalPromise = Promise;
 
@@ -12,26 +13,9 @@ export const PromiseWithContext = function (callback) {
   });
 
 
-  this.then = function (callback) {
-    const fork2 = AsyncContext.fork()
-    return originalPromise.then(
-      fork2.createResolver(callback)
-    )
-  }
-
-  this.catch = function (callback) {
-    const fork2 = AsyncContext.fork()
-    return originalPromise.catch(
-      fork2.createResolver(callback)
-    )
-  }
-
-  this.finally = function (callback) {
-    const fork2 = AsyncContext.fork()
-    return originalPromise.finally(
-      fork2.createResolver(callback)
-    )
-  }
+  this.then = createCallbackWithContext(originalPromise.then.bind(originalPromise))
+  this.catch = createCallbackWithContext(originalPromise.catch.bind(originalPromise))
+  this.finally = createCallbackWithContext(originalPromise.finally.bind(originalPromise))
 };
 
 // Ensure that all methods of the original Promise 
