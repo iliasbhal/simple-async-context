@@ -1,10 +1,97 @@
 ## ✨ Simple-Async-Context
+TC39 - Async Context for JavaScript
 
 ## 💼 How to install?
 
-```
+```sh
 $ npm i simple-async-context
 ```
+```sh
+$ yarn add simple-async-context
+```
+
+## 💪 Motivation
+Async/await syntax improved in ergonomics of writing asynchronous JS. 
+It allows developers to think of asynchronous code in terms of synchronous code. 
+The behavior of the event loop executing the code remains the same as in a promise chain. 
+However, passing code through the event loop loses implicit information from the call site. 
+
+And knowing the call is call site of a function is crutial for a variety of purposes. For example, it allows for: 
+- attribution of side effects in a software
+- tracing tools to provide useful information among other things. 
+
+That's why the feature and this polyfill are usefull 🙃.
+
+## 📚 How To Use?
+An example is worth a thousand words, please check the code below 🫡
+
+```tsx
+import { AsyncContext } from 'simple-async-context';
+
+const context = new AsyncContext.Variable();
+
+const wait = (timeout: number) => new Promise(r => setTimeout(r, timeout));
+const randomTimeout = () => Math.random() * 1000;
+
+async function main() {
+
+  context.get(); // => 'top'
+
+  await wait(randomTimeout());
+
+  context.run("A", () => {
+    context.get(); // => 'A'
+
+    setTimeout(() => {
+      context.get(); // => 'A'
+    }, randomTimeout());
+
+    context.run("B", async () => { // contexts can be nested.
+      await wait(randomTimeout());
+
+      context.get(); // => 'B'
+
+
+      context.get(); // => 'B'  // contexts are restored 
+
+      setTimeout(() => {
+        context.get(); // => 'B'
+      }, randomTimeout());
+    });
+
+
+    context.run("C", async () => { // contexts can be nested.
+      await wait(randomTimeout());
+
+      context.get(); // => 'C'
+
+      await wait(randomTimeout());
+
+      context.get(); // => 'C' 
+
+      setTimeout(() => {
+        context.get(); // => 'C'
+      }, randomTimeout());
+    });
+
+  });
+
+  await wait(randomTimeout());
+
+  context.get(); // => 'top'
+}
+
+context.run("top", main);
+
+```
+
+## Snapshot
+
+// TODO
+
+## Tracking
+
+// TODO
 
 
 ## :book: License
