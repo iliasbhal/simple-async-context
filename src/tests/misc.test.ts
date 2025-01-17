@@ -1,5 +1,6 @@
 import wait from 'wait';
 import { AsyncContext } from '..';
+import { createHofWithContext } from '../polyfills/createHofWithContext';
 
 const asyncContext = new AsyncContext.Variable();
 
@@ -15,6 +16,16 @@ describe('AsyncContext / Data', () => {
   it(`should point to the original data`, async () => {
     await testContextData(Symbol('test'));
   });
+})
+
+describe('createHofWithContext', () => {
+  it('should propagate `this`', () => {
+    const wrapped = createHofWithContext(function () {
+      expect(this).toBe('test');
+    });
+
+    wrapped.call('test');
+  })
 })
 
 
