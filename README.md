@@ -1,3 +1,5 @@
+![NPM License](https://img.shields.io/npm/l/simple-async-context)
+
 ## ✨ Simple-Async-Context
 Polyfill implementing the TC39 proposal for AsyncContext in Javascript.
 
