@@ -42,8 +42,6 @@ describe('AsyncContext / Snapshot', () => {
     await total();
 
     snapshot.run(() => {
-      const current = AsyncContext.getCurrent();
-      console.log('current', current);
       expect(asyncContext.get()).toBe('Inner');
       expect(asyncContext2.get()).toBe('Inner 2');
     });
