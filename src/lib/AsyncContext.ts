@@ -69,7 +69,7 @@ export class AsyncContext {
   }
 
   parent?: AsyncContext;
-  data = new Map<AsyncVariable, any>();
+  data = new WeakMap<AsyncVariable, any>();
 
   constructor(parent: AsyncContext) {
     this.parent = parent;
@@ -115,9 +115,10 @@ export class AsyncContext {
   clone() {
     const clone = new AsyncContext(this.parent?.clone());
 
-    this.data.forEach((value, key) => {
-      clone.setData(key, value);
-    });
+    AsyncContext.Variable.all.forEach((ctx) => {
+      const variableData = this.data.get(ctx)
+      clone.setData(ctx, variableData);
+    })
 
     return clone;
   }

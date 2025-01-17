@@ -3,6 +3,12 @@ import { AsyncContext } from './AsyncContext'
 type AnyFunction = (...args: any) => any;
 
 export class AsyncVariable<Value = any> {
+  static all = new Set<AsyncVariable>()
+
+  constructor() {
+    AsyncVariable.all.add(this);
+  }
+
   static getVariable(variable: AsyncVariable<any> | null) {
     let current = AsyncContext.getCurrent();
 
@@ -15,6 +21,10 @@ export class AsyncVariable<Value = any> {
       if (!current) break;
       current = current?.parent;
     }
+  }
+
+  dispose() {
+    AsyncVariable.all.delete(this);
   }
 
   get(): Value {
