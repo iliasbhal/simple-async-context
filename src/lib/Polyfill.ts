@@ -15,3 +15,5 @@ export class Polyfill {
     root.setInterval = setIntervalWithContext as any
   }
 }
+
+Polyfill.ensureEnabled();

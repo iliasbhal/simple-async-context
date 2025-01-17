@@ -3,14 +3,13 @@ import { AsyncContext } from "./AsyncContext";
 const OriginalPromise = Promise;
 
 export const PromiseWithContext = function (callback) {
-  const fork = AsyncContext.fork()
-
   const originalPromise = new OriginalPromise((resolve, reject) => {
+    const fork = AsyncContext.fork()
     const wrapResolve = fork.createResolver(resolve);
     const wrapReject = fork.createResolver(reject);
     callback(wrapResolve, wrapReject);
+    fork.reset();
   });
-  fork.reset();
 
 
   this.then = function (callback) {

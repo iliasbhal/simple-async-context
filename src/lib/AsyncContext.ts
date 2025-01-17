@@ -1,75 +1,51 @@
-import { Polyfill } from './Polyfill';
+import { AsyncVariable } from './AsyncVariable'
+import { AsyncSnapshot } from './AsyncSnapshot';
 
 type AnyFunction = (...args: any) => any;
 
-class AsyncVariable {
-  constructor() {
-    Polyfill.ensureEnabled();
-  }
-
-  get() {
-    return AsyncContext.getVariableData(this);
-  }
-
-  run<Fn extends AnyFunction>(value: any, callback: Fn) {
-    return AsyncContext.runWithData(this, value, callback);
-  }
-
-  withData(data: any) {
-    const self = this;
-    return {
-      run<Fn extends AnyFunction>(callback: Fn) {
-        return AsyncContext.runWithData(self, data, callback);
-      },
-      wrap<Fn extends AnyFunction>(callback: Fn) {
-        return AsyncContext.wrapWithData(self, data, callback);
-      },
-      fork() {
-        return AsyncContext.forkWithData(self, data);
-      }
-    }
-  }
-}
-
-class AsyncSnapshot {
-  run<Fn extends AnyFunction>(callback: Fn) {
-    // TODO;
-  }
-}
-
 export class AsyncContext {
-  private static current: AsyncStack = null
+  private static current: AsyncContext = null
 
   static getCurrent() {
-    return this.current;
+    const current = this.current;
+    const snapshot = current?.getData(AsyncContext.SnapshotVariable)
+    if (snapshot) {
+      return snapshot.capture;
+    }
+
+    return current;
   }
 
-  static set(ctx: AsyncStack) {
+  protected static set(ctx: AsyncContext) {
     this.current = ctx;
   }
 
   static Variable = AsyncVariable;
   static Snapshot = AsyncSnapshot;
 
+  static SnapshotVariable = new AsyncVariable();
+
   static fork() {
-    return AsyncContext.forkWithData(null, null);
+    return AsyncContext.forkWithData(null, undefined);
   }
 
   static run<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.runWithData(null, null, callback);
+    return AsyncContext.runWithData(null, undefined, callback);
   }
 
   static wrap<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.wrapWithData(null, null, callback);
+    return AsyncContext.wrapWithData(null, undefined, callback);
   }
 
   static forkWithData(variable: AsyncVariable | null, data: any) {
     const parent = AsyncContext.getCurrent();
-    const fork = new AsyncStack(parent);
+    const fork = new AsyncContext(parent);
     fork.setData(variable, data);
     fork.start();
     return fork
   }
+
+
 
   static wrapWithData<Fn extends AnyFunction>(variable: AsyncVariable | null, data: any, callback: Fn): Fn {
     const wrapped = (...args) => {
@@ -86,30 +62,15 @@ export class AsyncContext {
     return result;
   }
 
-  static getVariableData(variable: AsyncVariable | null) {
-    let current = AsyncContext.getCurrent();
-
-    while (true) {
-      const value = current?.getData(variable);
-      if (value !== undefined) {
-        return value;
-      }
-
-      if (!current) break;
-      current = current?.parent;
-    }
-  }
-}
-
-class AsyncStack {
-  parent?: AsyncStack;
+  parent?: AsyncContext;
   data = new Map<AsyncVariable, any>();
 
-  constructor(parent: AsyncStack) {
+  constructor(parent: AsyncContext) {
     this.parent = parent;
   }
 
-  setData(variable: AsyncVariable | null, data: Record<string, any>) {
+  setData(variable: AsyncVariable | null, data: any) {
+    if (data === undefined) return;
     return this.data.set(variable, data);
   }
 
@@ -129,13 +90,30 @@ class AsyncStack {
   }
 
   createResolver(callback) {
+    let triggered = false;
+
     return (...args: any[]) => {
+      if (triggered) return;
+      triggered = true;
+
       this.reset();
 
-      const fork = AsyncContext.fork()
+      // Note: Is this fork neecessary? All tests are passing without it.
+      // const fork = AsyncContext.fork()
       const result = callback(...args);
-      fork.reset();
+      // fork.reset();
       return result;
     }
   }
+
+  clone() {
+    const clone = new AsyncContext(this.parent?.clone());
+
+    this.data.forEach((value, key) => {
+      clone.setData(key, value);
+    });
+
+    return clone;
+  }
 }
+
