@@ -1,4 +1,4 @@
-import { AsyncContext } from "./AsyncContext";
+import { AsyncContext } from "../lib/AsyncContext";
 
 const OriginalPromise = Promise;
 

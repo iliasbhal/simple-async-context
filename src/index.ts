@@ -1,4 +1,4 @@
-import { Polyfill } from './lib/Polyfill';
+import { Polyfill } from './polyfills';
 
 Polyfill.ensureEnabled();
 
