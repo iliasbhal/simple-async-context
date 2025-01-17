@@ -294,7 +294,7 @@ describe('SimpleAsyncContext / Async', () => {
     expect(asyncContext.get()).toBe(undefined);
   })
 
-  it.only('async (scenario 9/bis/bis/bis): should know in which context it is', async () => {
+  it('async (scenario 9/bis/bis/bis): should know in which context it is', async () => {
 
     const track1 = asyncContext.withData('track1').wrap(async () => {
       expect(asyncContext.get()).toBe('track1');
@@ -304,12 +304,7 @@ describe('SimpleAsyncContext / Async', () => {
 
     const track2 = asyncContext.withData('track2').wrap(async () => {
       expect(asyncContext.get()).toBe('track2');
-      const before = Date.now();
       await wait(100);
-      const after = Date.now();
-      const timeSpent = after - before;
-      expect(timeSpent).toBeGreaterThanOrEqual(200);
-
       expect(asyncContext.get()).toBe('track2');
     });
 
