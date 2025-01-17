@@ -57,9 +57,15 @@ export class AsyncContext {
 
   static runWithData<Fn extends (...args: any) => any>(variable: AsyncVariable | null, data: any, callback: Fn): ReturnType<Fn> {
     const asyncfork = AsyncContext.forkWithData(variable, data);
-    const result = callback();
-    asyncfork.reset();
-    return result;
+
+    // use a try/fanilly block to ensure it keeps working 
+    // even if the callback throws an error
+    try {
+      const result = callback();
+      return result;
+    } finally {
+      asyncfork.reset();
+    }
   }
 
   parent?: AsyncContext;
