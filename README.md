@@ -1,5 +1,5 @@
 ## ✨ Simple-Async-Context
-TC39 - Async Context for JavaScript
+Polyfill implementing the TC39 proposal for AsyncContext.
 
 ## 💼 How to install?
 
