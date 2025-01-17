@@ -29,7 +29,7 @@
     "build:ts": "rm -rf ./build && babel --extensions .ts,.tsx ./src -d ./build --ignore '**/tests'",
     "build:dts": "tsc --emitDeclarationOnly --project ./tsconfig.build.json",
     "build:watch": "yarn build:ts -w & yarn build:dts -w",
-    "prepublish": "yarn build",
+    "prepublish": "yarn test && yarn build",
     "playground": "bun run --watch  ./scripts/playground.ts"
   },
   "peerDependencies": {},
