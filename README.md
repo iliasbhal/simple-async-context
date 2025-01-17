@@ -1,5 +1,5 @@
 ## ✨ Simple-Async-Context
-Polyfill implementing the TC39 proposal for AsyncContext.
+Polyfill implementing the TC39 proposal for AsyncContext in Javascript.
 
 ## 💼 How to install?
 
@@ -11,19 +11,17 @@ $ yarn add simple-async-context
 ```
 
 ## 💪 Motivation
-Async/await syntax improved in ergonomics of writing asynchronous JS. 
-It allows developers to think of asynchronous code in terms of synchronous code. 
-The behavior of the event loop executing the code remains the same as in a promise chain. 
-However, passing code through the event loop loses implicit information from the call site. 
+Promises and async/await syntax improved the ergonomics of writing asynchronous JavaScript. It allows developers to think of asynchronous code in terms of synchronous code. The behavior of the event loop executing the code remains the same in an asynchronous block. However, the event loop loses implicit information about the call site.
 
-And knowing the call is call site of a function is crutial for a variety of purposes. For example, it allows for: 
-- attribution of side effects in a software
-- tracing tools to provide useful information among other things. 
-
-That's why the feature and this polyfill are usefull 🙃.
+Knowing the call site of a function is crucial for a variety of purposes. For example, it allows for: (non-exhaustive list)
+	•	Attribution of side effects in software.
+	•	Tracing tools and profilers to analytize the code.
+  
+That's why the feature and this polyfill are useful 🙃.
 
 ## 📚 How To Use?
-An example is worth a thousand words, please check the code below 🫡
+An image is worth a thousand words.
+Please check the code below 🫡
 
 ```tsx
 import { AsyncContext } from 'simple-async-context';
