@@ -1,20 +1,19 @@
 import { AsyncContext } from "./AsyncContext";
 
-const orignalSetTimeout = setTimeout;
-export const setTimeoutWithContext = function (callback, timeout) {
-  const fork = AsyncContext.fork()
-  const resolver = fork.createResolver(callback);
-  const result = orignalSetTimeout(resolver, timeout);
-  fork.reset();
-  return result
-};
+type AnyFunction = (...args: any) => any;
 
+const createTimerPolyfill = (originalTimer: AnyFunction) => {
+  return (callback: AnyFunction, ...args) => {
+    const fork = AsyncContext.fork()
+    const resolver = fork.createResolver(callback);
+    const result = originalTimer(resolver, ...args);
+    fork.reset();
+    return result
+  }
+}
 
-const orignalSetInterval = setTimeout;
-export const setIntervalWithContext = function (callback, interval) {
-  const fork = AsyncContext.fork()
-  const resolver = fork.createResolver(callback);
-  const result = orignalSetInterval(resolver, interval);
-  fork.reset();
-  return result
+export const timers = {
+  setTimeout: createTimerPolyfill(setTimeout),
+  setInterval: createTimerPolyfill(setInterval),
+  setImmediate: createTimerPolyfill(setImmediate),
 };

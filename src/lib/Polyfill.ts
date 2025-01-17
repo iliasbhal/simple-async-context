@@ -1,5 +1,5 @@
 import { PromiseWithContext } from "./PromiseWithContext";
-import { setIntervalWithContext, setTimeoutWithContext } from './TimersWithContext';
+import { timers } from './TimersWithContext';
 
 export class Polyfill {
   static enabled = false;
@@ -11,9 +11,9 @@ export class Polyfill {
       (typeof window !== 'undefined' && window)
 
     root.Promise = PromiseWithContext as any;
-    root.setTimeout = setTimeoutWithContext as any;
-    root.setInterval = setIntervalWithContext as any
+
+    Object.keys(timers).forEach((key) => {
+      root[key] = timers[key];
+    });
   }
 }
-
-Polyfill.ensureEnabled();
