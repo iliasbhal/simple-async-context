@@ -4,6 +4,16 @@ import { AsyncContext } from '..';
 const asyncContext = new AsyncContext.Variable();
 
 describe('AsyncContext / setTimeout', () => {
+  it('should not infere with timers', async () => {
+
+    const before = Date.now();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const after = Date.now();
+    const timeSpent = after - before;
+    expect(timeSpent).toBeGreaterThanOrEqual(100);
+
+  });
+
   it('timer (scenario 1): should know in which context it is', async () => {
 
     const innerCallback = asyncContext.withData('Inner').wrap(async () => {

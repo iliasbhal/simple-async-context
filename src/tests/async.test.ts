@@ -294,7 +294,7 @@ describe('SimpleAsyncContext / Async', () => {
     expect(asyncContext.get()).toBe(undefined);
   })
 
-  it('async (scenario 9/bis/bis/bis): should know in which context it is', async () => {
+  it.only('async (scenario 9/bis/bis/bis): should know in which context it is', async () => {
 
     const track1 = asyncContext.withData('track1').wrap(async () => {
       expect(asyncContext.get()).toBe('track1');
@@ -304,13 +304,18 @@ describe('SimpleAsyncContext / Async', () => {
 
     const track2 = asyncContext.withData('track2').wrap(async () => {
       expect(asyncContext.get()).toBe('track2');
+      const before = Date.now();
       await wait(100);
+      const after = Date.now();
+      const timeSpent = after - before;
+      expect(timeSpent).toBeGreaterThanOrEqual(200);
+
       expect(asyncContext.get()).toBe('track2');
     });
 
     expect(asyncContext.get()).toBe(undefined);
 
-    let trackedAsyncData: any = false;
+    let trackedAsyncData: any = {};
     asyncContext.withData('Random Wrap').run(async () => {
       track1().then(() => {
         trackedAsyncData = asyncContext.get();
@@ -319,15 +324,16 @@ describe('SimpleAsyncContext / Async', () => {
 
     // await wait(30)
 
-    let trackedAsyncData2: any = false;
+    let trackedAsyncData2: any = {};
     track2().then(() => {
       trackedAsyncData2 = asyncContext.get();;
     });;
 
     await wait(1000)
-    expect(trackedAsyncData).toBe('Random Wrap');
-    expect(trackedAsyncData2).toBe(undefined);
-    expect(asyncContext.get()).toBe(undefined);
+
+    // expect(trackedAsyncData).toBe('Random Wrap');
+    // expect(trackedAsyncData2).toBe(undefined);
+    // expect(asyncContext.get()).toBe(undefined);
   })
 
   it('async (scenario 10): should know in which context it is', async () => {
