@@ -64,11 +64,6 @@ describe('Misc', () => {
           expect(step.next().value).toBe('top')
           expect(step.next().done).toBe(true)
 
-          for (const ctx of context.walk()) {
-
-            console.log(ctx) // B -> A -> top
-          }
-
           expect(context.get()).toBe('B')  // contexts are restored )
 
           setTimeout(() => {
