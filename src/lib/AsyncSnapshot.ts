@@ -26,4 +26,9 @@ export class AsyncSnapshot {
   wrap<Fn extends AnyFunction>(callback: Fn) {
     return AsyncContext.wrapWithData(AsyncContext.SnapshotVariable, this, callback);
   }
+
+  static wrap<Fn extends AnyFunction>(callback: Fn) {
+    const snapshot = AsyncSnapshot.create();
+    return snapshot.wrap(callback);
+  }
 }

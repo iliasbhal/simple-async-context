@@ -2,8 +2,8 @@ import { AsyncContext } from './AsyncContext'
 
 type AnyFunction = (...args: any) => any;
 
-export class AsyncVariable {
-  static getVariable(variable: AsyncVariable | null) {
+export class AsyncVariable<Value = any> {
+  static getVariable(variable: AsyncVariable<any> | null) {
     let current = AsyncContext.getCurrent();
 
     while (true) {
@@ -17,7 +17,7 @@ export class AsyncVariable {
     }
   }
 
-  get() {
+  get(): Value {
     const value = AsyncVariable.getVariable(this);
     return value?.value;
   }
