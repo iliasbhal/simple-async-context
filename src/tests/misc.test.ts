@@ -4,27 +4,104 @@ import { createHofWithContext } from '../polyfills/createHofWithContext';
 
 const asyncContext = new AsyncContext.Variable();
 
-describe('AsyncContext / Data', () => {
+describe('Misc', () => {
+  describe('Misc / Data', () => {
 
-  const values = [null, undefined, 0, false];
-  values.forEach(value => {
-    it(`should accept ${value} as data`, async () => {
-      await testContextData(value);
-    });
-  });
-
-  it(`should point to the original data`, async () => {
-    await testContextData(Symbol('test'));
-  });
-})
-
-describe('createHofWithContext', () => {
-  it('should propagate `this`', () => {
-    const wrapped = createHofWithContext(function () {
-      expect(this).toBe('test');
+    const values = [null, undefined, 0, false];
+    values.forEach(value => {
+      it(`should accept ${value} as data`, async () => {
+        await testContextData(value);
+      });
     });
 
-    wrapped.call('test');
+    it(`should point to the original data`, async () => {
+      await testContextData(Symbol('test'));
+    });
+  })
+
+
+  describe('createHofWithContext', () => {
+    it('should propagate `this`', () => {
+      const wrapped = createHofWithContext(function () {
+        expect(this).toBe('test');
+      });
+
+      wrapped.call('test');
+    })
+
+  })
+
+  it('example from readme should work', async () => {
+
+    const context = new AsyncContext.Variable();
+
+
+
+    const wait = (timeout: number) => new Promise(r => setTimeout(r, timeout));
+    const randomTimeout = () => Math.random() * 200;
+
+    async function main() {
+
+      expect(context.get()).toBe('top')
+
+      await wait(randomTimeout());
+
+      context.run("A", () => {
+        expect(context.get()).toBe('A')
+
+        setTimeout(() => {
+          expect(context.get()).toBe('A')
+        }, randomTimeout());
+
+        context.run("B", async () => { // contexts can be nested.
+          await wait(randomTimeout());
+
+          expect(context.get()).toBe('B')
+
+          const step = context.walk();
+          expect(step.next().value).toBe('B')
+          expect(step.next().value).toBe('A')
+          expect(step.next().value).toBe('top')
+          expect(step.next().done).toBe(true)
+
+          for (const ctx of context.walk()) {
+
+            console.log(ctx) // B -> A -> top
+          }
+
+          expect(context.get()).toBe('B')  // contexts are restored )
+
+          setTimeout(() => {
+            expect(context.get()).toBe('B')
+          }, randomTimeout());
+        });
+
+
+        context.run("C", async () => { // contexts can be nested.
+          await wait(randomTimeout());
+
+          expect(context.get()).toBe('C')
+
+          await wait(randomTimeout());
+
+          expect(context.get()).toBe('C')
+
+          setTimeout(() => {
+            expect(context.get()).toBe('C')
+          }, randomTimeout());
+        });
+
+      });
+
+      await wait(randomTimeout());
+
+      expect(context.get()).toBe('top')
+    }
+
+    await context.run("top", main);
+
+    await wait(1000);
+
   })
 })
 

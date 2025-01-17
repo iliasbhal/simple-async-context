@@ -6,7 +6,7 @@ type AnyFunction = (...args: any) => any;
 export class AsyncContext {
   private static current: AsyncContext = null
 
-  static getCurrent() {
+  static getCurrent(): AsyncContext {
     const current = this.current;
     const snapshot = current?.getData(AsyncContext.SnapshotVariable)
     if (snapshot) {

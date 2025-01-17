@@ -51,6 +51,9 @@ async function main() {
 
       context.get(); // => 'B'
 
+      for (const ctx of context.walk()) {
+        console.log(ctx) // B -> A -> top
+      }
 
       context.get(); // => 'B'  // contexts are restored 
 

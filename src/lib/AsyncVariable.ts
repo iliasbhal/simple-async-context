@@ -9,13 +9,34 @@ export class AsyncVariable<Value = any> {
     AsyncVariable.all.add(this);
   }
 
+  *walk() {
+    for (const a of AsyncVariable.walk(this)) {
+      yield a;
+    };
+  }
+
+  static *walk(variable: AsyncVariable<any>) {
+    let current = AsyncContext.getCurrent();
+
+    while (true) {
+
+      const value = current?.getData(variable);
+      if (value !== undefined) {
+        yield value.value;
+      }
+
+      if (!current) break;
+      current = current?.parent;
+    }
+  }
+
   static getVariable(variable: AsyncVariable<any> | null) {
     let current = AsyncContext.getCurrent();
 
     while (true) {
       const value = current?.getData(variable);
       if (value !== undefined) {
-        return value;
+        return value?.value;
       }
 
       if (!current) break;
@@ -28,8 +49,7 @@ export class AsyncVariable<Value = any> {
   }
 
   get(): Value {
-    const value = AsyncVariable.getVariable(this);
-    return value?.value;
+    return AsyncVariable.getVariable(this);
   }
 
   run<Fn extends AnyFunction>(data: any, callback: Fn) {
