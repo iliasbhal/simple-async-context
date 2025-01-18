@@ -52,15 +52,15 @@ export class AsyncVariable<Value = any> {
     return AsyncVariable.getVariable(this);
   }
 
-  run<Fn extends AnyFunction>(data: any, callback: Fn) {
+  run<Fn extends AnyFunction>(data: Value, callback: Fn) {
     return AsyncContext.runWithData(this, { value: data }, callback);
   }
 
-  wrap<Fn extends AnyFunction>(data: any, callback: Fn) {
+  wrap<Fn extends AnyFunction>(data: Value, callback: Fn) {
     return AsyncContext.wrapWithData(this, { value: data }, callback);
   }
 
-  withData(data: any) {
+  withData(data: Value) {
     return {
       run: <Fn extends AnyFunction>(callback: Fn) => {
         return this.run(data, callback);
