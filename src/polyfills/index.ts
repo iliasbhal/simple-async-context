@@ -1,6 +1,6 @@
 import { PromiseWithContext } from "./PromiseWithContext";
-import { timers } from './TimersWithContext';
 import { addEventListenerWithContext } from './EventWithContext'
+import { createHofWithContext } from "./createHofWithContext";
 
 export class Polyfill {
   static enabled = false;
@@ -15,11 +15,11 @@ export class Polyfill {
     root.Promise = PromiseWithContext as any;
 
     // Polyfill Timers
-    Object.keys(timers).forEach((key) => {
-      root[key] = timers[key];
-    });
+    root.setTimeout = createHofWithContext(setTimeout);
+    root.setInterval = createHofWithContext(setInterval);
 
-    // Polyfill EventListeners
-    EventTarget.prototype.addEventListener = addEventListenerWithContext;
+    if (typeof setImmediate !== undefined) {
+      root.setImmediate = createHofWithContext(setImmediate);
+    }
   }
 }

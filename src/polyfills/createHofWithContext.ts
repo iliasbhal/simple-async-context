@@ -4,7 +4,7 @@ type AnyFunction = (...args: any) => any;
 
 // This function ensure that the context is passed to the callback
 // That is called by the higher order function
-export const createHofWithContext = (originalCallback: AnyFunction) => {
+export const createHofWithContext = <Callback extends AnyFunction>(originalCallback: Callback): Callback => {
   return function (...args: any[]) {
     const fork = AsyncContext.fork()
 
@@ -19,5 +19,5 @@ export const createHofWithContext = (originalCallback: AnyFunction) => {
     const result = originalCallback.call(this, ...patchedArgs);
     fork.reset();
     return result
-  }
+  } as any
 }
