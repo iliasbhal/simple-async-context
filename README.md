@@ -21,8 +21,22 @@ Knowing the call site of a function is crucial for a variety of purposes. For ex
   
 That's why the feature and this polyfill are useful 🙃.
 
+
 ## 📚 How To Use?
-An image is worth a thousand words.
+
+1. Make sure that your code is compiled to remove native async/await. One option would be to use babel with the config below. But other tools can do the trick as well.
+
+```json
+{
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-typescript"
+  ]
+}
+```
+
+
+2. An image is worth a thousand words.
 Please check the code below 🫡
 
 ```tsx
