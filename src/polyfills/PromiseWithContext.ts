@@ -11,8 +11,6 @@ export const PromiseWithContext = function (callback) {
     callback(wrapResolve, wrapReject);
     fork.reset();
   });
-
-
 };
 
 OriginalPromise.prototype.then = createHofWithContext(OriginalPromise.prototype.then)
