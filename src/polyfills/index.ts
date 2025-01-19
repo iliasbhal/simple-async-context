@@ -1,5 +1,4 @@
 import { PromiseWithContext } from "./PromiseWithContext";
-import { addEventListenerWithContext } from './EventWithContext'
 import { createHofWithContext } from "./createHofWithContext";
 
 export class Polyfill {
