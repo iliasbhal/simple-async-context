@@ -16,11 +16,8 @@ export class Polyfill {
     root.Promise = PromiseWithContext as any;
 
     // Polyfill Timers
-    root.setTimeout = createHofWithContext(setTimeout);
-    root.setInterval = createHofWithContext(setInterval);
-
-    if (typeof setImmediate !== undefined) {
-      root.setImmediate = createHofWithContext(setImmediate);
-    }
+    root.setTimeout = createHofWithContext(root.setTimeout);
+    root.setInterval = createHofWithContext(root.setInterval);
+    root.setImmediate = createHofWithContext(root.setImmediate);
   }
 }
