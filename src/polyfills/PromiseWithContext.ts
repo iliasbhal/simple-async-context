@@ -4,18 +4,19 @@ import { createHofWithContext } from './createHofWithContext';
 const OriginalPromise = Promise;
 
 export const PromiseWithContext = function (callback) {
-  return new OriginalPromise((resolve, reject) => {
+  const originalPromise = new OriginalPromise((resolve, reject) => {
     const fork = AsyncContext.fork()
     const wrapResolve = fork.createResolver(resolve);
     const wrapReject = fork.createResolver(reject);
     callback(wrapResolve, wrapReject);
     fork.reset();
   });
-};
 
-OriginalPromise.prototype.then = createHofWithContext(OriginalPromise.prototype.then)
-OriginalPromise.prototype.catch = createHofWithContext(OriginalPromise.prototype.catch)
-OriginalPromise.prototype.finally = createHofWithContext(OriginalPromise.prototype.finally)
+
+  this.then = createHofWithContext(originalPromise.then.bind(originalPromise))
+  this.catch = createHofWithContext(originalPromise.catch.bind(originalPromise))
+  this.finally = createHofWithContext(originalPromise.finally.bind(originalPromise))
+};
 
 // Ensure that all methods of the original Promise 
 // are available on the new PromiseWithContext

@@ -1,5 +1,6 @@
-import wait from 'wait';
 import { AsyncContext } from '..';
+import { Polyfill } from '../polyfills';
+import { wait } from './_lib';
 import { createHofWithContext } from '../polyfills/createHofWithContext';
 
 const asyncContext = new AsyncContext.Variable();
@@ -29,6 +30,10 @@ describe('Misc', () => {
       wrapped.call('test');
     })
 
+  })
+
+  it('should keep a reference to the original setTimeout', () => {
+    expect(Polyfill.originalSetTimeout).not.toEqual(setTimeout)
   })
 
   it('example from readme should work', async () => {

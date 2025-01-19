@@ -1,5 +1,5 @@
-import wait from 'wait';
 import { AsyncContext } from '..';
+import { wait } from './_lib';
 
 const asyncContext = new AsyncContext.Variable();
 
@@ -382,8 +382,8 @@ describe('SimpleAsyncContext / Async', () => {
       await wait(100);
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe('Inner2');
-      await wait(100);
       // console.log(SimpleAsyncContext.getStackId())
+      await wait(100);
       expect(asyncContext.get()).toBe('Inner2');
       return `INNER2`
     });

@@ -2,6 +2,8 @@ import { PromiseWithContext } from "./PromiseWithContext";
 import { createHofWithContext } from "./createHofWithContext";
 
 export class Polyfill {
+  static originalSetTimeout = setTimeout;
+
   static enabled = false;
   static ensureEnabled() {
     if (Polyfill.enabled) return;

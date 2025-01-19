@@ -1,7 +1,6 @@
-import wait from 'wait';
 import { AsyncContext } from '..';
 import { AsyncSnapshot } from '../lib/AsyncSnapshot';
-import { AsyncVariable } from '../lib/AsyncVariable';
+import { wait } from './_lib';
 
 const asyncContext = new AsyncContext.Variable();
 const asyncContext2 = new AsyncContext.Variable();

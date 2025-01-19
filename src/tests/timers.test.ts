@@ -1,5 +1,5 @@
-import wait from 'wait';
 import { AsyncContext } from '..';
+import { wait } from './_lib';
 
 const asyncContext = new AsyncContext.Variable();
 
