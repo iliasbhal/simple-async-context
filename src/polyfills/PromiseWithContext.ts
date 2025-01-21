@@ -1,7 +1,7 @@
 import { AsyncContext } from "../lib/AsyncContext";
 import { createHofWithContext } from './createHofWithContext';
 
-const OriginalPromise = Promise;
+export const OriginalPromise = Promise;
 
 export const PromiseWithContext = function (callback) {
   const originalPromise = new OriginalPromise((resolve, reject) => {

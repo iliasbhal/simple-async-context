@@ -1,16 +1,17 @@
-import { PromiseWithContext } from "./PromiseWithContext";
+import { OriginalPromise, PromiseWithContext, } from "./PromiseWithContext";
 import { createHofWithContext } from "./createHofWithContext";
+
+const root = (typeof global !== 'undefined' && global) ||
+  (typeof window !== 'undefined' && window)
 
 export class Polyfill {
   static originalSetTimeout = setTimeout;
+  static OriginalPromise = OriginalPromise;
 
   static enabled = false;
   static ensureEnabled() {
     if (Polyfill.enabled) return;
     Polyfill.enabled = true;
-
-    const root = (typeof global !== 'undefined' && global) ||
-      (typeof window !== 'undefined' && window)
 
     // Polyfill Promise
     root.Promise = PromiseWithContext as any;
