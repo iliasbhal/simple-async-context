@@ -3,16 +3,14 @@ import { AsyncSnapshot } from './AsyncSnapshot';
 
 type AnyFunction = (...args: any) => any;
 
+type VariableDataBox<Value = any> = { value: Value }
+
 export class AsyncContext {
+  private static Global = new AsyncContext(null);
   private static current: AsyncContext = null
 
   static getCurrent(): AsyncContext {
     const current = this.current;
-    const snapshot = current?.getData(AsyncContext.SnapshotVariable)
-    if (snapshot) {
-      return snapshot.capture;
-    }
-
     return current;
   }
 
@@ -23,29 +21,63 @@ export class AsyncContext {
   static Variable = AsyncVariable;
   static Snapshot = AsyncSnapshot;
 
-  static SnapshotVariable = new AsyncVariable();
+  static NO_DATA = Symbol('NO_DATA');
 
   static fork() {
-    return AsyncContext.forkWithData(null, undefined);
+    return AsyncContext.forkWithData(null, AsyncContext.NO_DATA);
   }
 
   static run<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.runWithData(null, undefined, callback);
+    return AsyncContext.runWithData(null, AsyncContext.NO_DATA, callback);
   }
 
   static wrap<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.wrapWithData(null, undefined, callback);
+    return AsyncContext.wrapWithData(null, AsyncContext.NO_DATA, callback);
+  }
+
+  static wrapWithSnapshot<Fn extends AnyFunction>(snapshot: AsyncSnapshot, callback: Fn) {
+    const wrapped = (...args) => {
+      return AsyncContext.runWithSnapshot(snapshot, () => callback(...args));
+    };
+
+    return wrapped as Fn;
+  }
+
+  static runWithSnapshot<Fn extends AnyFunction>(snapshot: AsyncSnapshot, callback: Fn) {
+    const asyncfork = AsyncContext.forkWithSnapshot(snapshot);
+
+    // use a try/catch block to ensure it keeps working 
+    // even if the callback throws an error
+    try {
+      const result = callback();
+      asyncfork.reset();
+      return result;
+    } catch {
+      asyncfork.reset();
+      return;
+    }
+  }
+
+  static forkWithSnapshot(snapshot: AsyncSnapshot) {
+    const origin = AsyncContext.getCurrent();
+    const fork = new AsyncContext(snapshot.stack);
+    fork.start();
+    return {
+      reset() {
+        fork.reset();
+        AsyncContext.set(origin);
+      }
+    }
   }
 
   static forkWithData(variable: AsyncVariable | null, data: any) {
-    const parent = AsyncContext.getCurrent();
-    const fork = new AsyncContext(parent);
+    const origin = AsyncContext.getCurrent();
+    const fork = new AsyncContext(origin);
+
     fork.setData(variable, data);
     fork.start();
     return fork
   }
-
-
 
   static wrapWithData<Fn extends AnyFunction>(variable: AsyncVariable | null, data: any, callback: Fn): Fn {
     const wrapped = (...args) => {
@@ -68,31 +100,41 @@ export class AsyncContext {
     }
   }
 
-  parent?: AsyncContext;
-  data = new WeakMap<AsyncVariable, any>();
+  origin?: AsyncContext;
+  data = new Map<AsyncVariable, VariableDataBox>();
 
-  constructor(parent: AsyncContext) {
-    this.parent = parent;
+  constructor(origin: AsyncContext | null) {
+    this.origin = origin || AsyncContext.Global;
+  }
+
+  private getBox(variable: AsyncVariable | null): VariableDataBox {
+    const data = this.data.get(variable);
+    if (data) return data;
+
+    const upstreamBox = this.origin?.getBox(variable);
+    if (upstreamBox) {
+      this.data.set(variable, upstreamBox);
+    }
+
+    return upstreamBox;
   }
 
   setData(variable: AsyncVariable | null, data: any) {
-    if (data === undefined) return;
-    return this.data.set(variable, data);
+    if (data === AsyncContext.NO_DATA) return;
+    return this.data.set(variable, { value: data });
   }
 
   getData(variable: AsyncVariable | null) {
-    return this.data.get(variable);
+    const box = this.getBox(variable);
+    return box?.value
   }
 
-  started = false;
   start() {
-    if (this.started) return;
-    this.started = true;
     AsyncContext.set(this);
   }
 
   reset() {
-    AsyncContext.set(this.parent);
+    AsyncContext.set(this.origin);
   }
 
   createResolver(callback) {
@@ -110,17 +152,6 @@ export class AsyncContext {
       // fork.reset();
       return result;
     }
-  }
-
-  clone() {
-    const clone = new AsyncContext(this.parent?.clone());
-
-    AsyncContext.Variable.all.forEach((ctx) => {
-      const variableData = this.data.get(ctx)
-      clone.setData(ctx, variableData);
-    })
-
-    return clone;
   }
 }
 
