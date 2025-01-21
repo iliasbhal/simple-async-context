@@ -1,5 +1,4 @@
 import { AsyncStack } from '../polyfills/AsyncStack';
-import { AsyncContext } from './AsyncContext'
 
 type AnyFunction = (...args: any) => any;
 
@@ -37,49 +36,16 @@ export class AsyncVariable<Value = any> {
   }
 
   get(): Value {
-    // console.log(this.data);
     return this.getBox()?.value;
   }
 
   run<Fn extends AnyFunction>(data: Value, callback: Fn) {
     const current = AsyncStack.getCurrent();
-    const box = this.getBox();
-    // console.log('before run', box);
-
-    // console.log('SET DATA', data);
+    const before = this.data.get(current);
     this.set(current, data);
-
-
-
     const result = callback();
-
-    if (box) {
-      // this.set(current, box.value);
-    }
-
-    if (result instanceof Promise) {
-      return new Promise(((resolve, reject) => {
-        result.then((value) => {
-          resolve(value);
-          if (box) {
-            this.set(current, box.value);
-          }
-        });;
-      }));
-    }
-
+    this.set(current, before);
     return result;
-
-
-    // if (box) {
-    // }
-
-
-
-    // console.log('RESET DATA', box);
-    // reuse the same box
-
-
   }
 
   wrap<Fn extends AnyFunction>(data: Value, callback: Fn) {

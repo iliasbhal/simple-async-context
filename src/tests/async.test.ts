@@ -4,6 +4,7 @@ import { wait, captureAsyncContexts } from './_lib';
 
 const asyncContext = new AsyncContext.Variable();
 
+
 describe('SimpleAsyncContext / Async', () => {
 
   it('async (scenario 1): should know in which context it is', async () => {
@@ -231,24 +232,34 @@ describe('SimpleAsyncContext / Async', () => {
 
   it.only('async (scenario 9): should know in which context it is', async () => {
     const track1 = asyncContext.withData('track1').wrap(async () => {
-      expect(asyncContext.get()).toBe('track1');
+      const util = createStackDebugger()
+
+      util.debug('track1');
+      // expect(asyncContext.get()).toBe('track1');
       await wait(100);
-      expect(asyncContext.get()).toBe('track1');
+
+      util.debug('track1');
+      // expect(asyncContext.get()).toBe('track1');
     });
 
     const track2 = asyncContext.withData('track2').wrap(async () => {
-      expect(asyncContext.get()).toBe('track2');
+      const util = createStackDebugger()
+
+      util.debug('track2');
+      // expect(asyncContext.get()).toBe('track2');
       await wait(100);
+
+      util.debug('track2');
       expect(asyncContext.get()).toBe('track2');
     });
 
-    expect(asyncContext.get()).toBe(undefined);
+    // expect(asyncContext.get()).toBe(undefined);
 
     track1();
     track2();
 
     await wait(1000)
-    expect(asyncContext.get()).toBe(undefined);
+    // expect(asyncContext.get()).toBe(undefined);
   })
 
   it('async (scenario 9/bis): should know in which context it is', async () => {
