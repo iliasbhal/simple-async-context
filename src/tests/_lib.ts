@@ -35,3 +35,29 @@ export const createRecursive = (config: { deepness: number, async: boolean, call
 
   return recursiveSync;
 }
+
+export const createAsyncDebugger = (debugId: string) => {
+  const getDebugStackTrace = (debugId) => {
+    const stack = captureAsyncContexts().reverse();
+    stack.forEach((ctx: any, i) => {
+
+      const isAlreadyMarked = ctx.index !== undefined;
+      if (!isAlreadyMarked) {
+        ctx.index = i
+        ctx.debugId = debugId;
+      };
+    })
+
+    return stack.map((ctx: any, i) => {
+      return `${ctx.index}/${ctx.debugId}`;
+    });
+  }
+
+  const root = getDebugStackTrace(debugId);
+  return {
+    debug(debugId: string) {
+      const stackIds = getDebugStackTrace(debugId);
+      console.log(debugId, stackIds);
+    },
+  }
+}
