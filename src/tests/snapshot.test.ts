@@ -65,8 +65,8 @@ describe('AsyncContext / Snapshot', () => {
 
   it('snapshot (scenario 3): should know in which context it is', async () => {
     let snapshot: AsyncSnapshot = null;
-    const asyncContext = new AsyncContext.Variable('1');
-    const asyncContext2 = new AsyncContext.Variable('2');
+    const asyncContext = new AsyncContext.Variable();
+    const asyncContext2 = new AsyncContext.Variable();
 
     const innerCallback = asyncContext.withData('Inner').wrap(async () => {
       return asyncContext2.run('Inner 2', async () => {
