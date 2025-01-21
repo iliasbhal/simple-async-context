@@ -1,13 +1,13 @@
 
-import { AsyncContext } from '../lib/AsyncContext';
+import { AsyncStack } from '../polyfills/AsyncStack';
 import { Polyfill } from '../polyfills';
 
 export const wait = (timeout: number) => new Promise((resolve) => Polyfill.originalSetTimeout(resolve, timeout))
 
 export const captureAsyncContexts = () => {
-  const stackTrace: Set<AsyncContext> = new Set();
+  const stackTrace: Set<AsyncStack> = new Set();
 
-  let lastStack = AsyncContext.getCurrent();
+  let lastStack = AsyncStack.getCurrent();
   while (lastStack) {
     stackTrace.add(lastStack);
     lastStack = lastStack.origin;

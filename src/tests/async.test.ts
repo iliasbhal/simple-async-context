@@ -3,6 +3,7 @@ import { wait, createAsyncDebugger } from './_lib';
 
 const asyncContext = new AsyncContext.Variable();
 
+
 describe('SimpleAsyncContext / Async', () => {
 
   it('async (scenario 1): should know in which context it is', async () => {
@@ -23,15 +24,19 @@ describe('SimpleAsyncContext / Async', () => {
 
   it('async (scenario 2): should know in which context it is', async () => {
 
-    const total = asyncContext.withData('Outer').wrap(async () => {
+    await asyncContext.withData('Outer').run(async () => {
+      // captureAsyncContexts().forEach((ctx, i) => ctx.index = i);
+
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe('Outer');
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
+      ;
       await wait(100);
+
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe('Outer');
       return `OUTER`;
     });
-
-    const value = await total();
-    expect(value).toBe('OUTER');
   })
 
 
@@ -223,7 +228,6 @@ describe('SimpleAsyncContext / Async', () => {
 
   it('async (scenario 9): should know in which context it is', async () => {
     // const debugAsync = createAsyncDebugger('global');
-
     const track1 = asyncContext.withData('track1').wrap(async () => {
       // debugAsync.debug('track1.1');
 

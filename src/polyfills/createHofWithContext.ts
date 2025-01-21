@@ -1,4 +1,4 @@
-import { AsyncContext } from "../lib/AsyncContext";
+import { AsyncStack } from "./AsyncStack";
 
 type AnyFunction = (...args: any) => any;
 
@@ -8,7 +8,7 @@ export const createHofWithContext = <Callback extends AnyFunction | undefined>(o
   if (typeof originalCallback === "undefined") return undefined
 
   return function (...args: any[]) {
-    const fork = AsyncContext.fork()
+    const fork = AsyncStack.fork()
 
     const patchedArgs = args.map((arg) => {
       if (typeof arg === 'function') {
@@ -19,7 +19,7 @@ export const createHofWithContext = <Callback extends AnyFunction | undefined>(o
     });
 
     const result = originalCallback.call(this, ...patchedArgs);
-    fork.reset();
+    fork.yield();
     return result
   } as any
 }

@@ -1,9 +1,14 @@
-import { AsyncContext } from './AsyncContext'
+import { AsyncStack } from '../polyfills/AsyncStack';
+import { AsyncContext } from './AsyncContext';
 
 type AnyFunction = (...args: any) => any;
 
+type VariableDataBox<Value = any> = { value: Value }
+
 export class AsyncVariable<Value = any> {
-  static all = new Set<AsyncVariable>()
+  static all = new Set<AsyncVariable>();
+
+  data = new WeakMap<AsyncStack, VariableDataBox>
 
   constructor() {
     AsyncVariable.all.add(this);
@@ -13,17 +18,39 @@ export class AsyncVariable<Value = any> {
     AsyncVariable.all.delete(this);
   }
 
+  getBox(stack: AsyncStack) {
+    if (!stack) return undefined;
+
+    const currentBox = this.data.get(stack);
+    if (currentBox) return currentBox;
+
+    const parentBox = this.getBox(stack.origin);
+    if (parentBox) this.data.set(stack, parentBox);
+    return parentBox;
+  }
+
+  set(stack: AsyncStack, data: any) {
+    this.data.set(stack, {
+      value: data
+    });
+  }
+
   get(): Value {
-    const current = AsyncContext.getCurrent();
-    return current?.getData(this)
+    const current = AsyncStack.getCurrent();
+    return this.getBox(current)?.value;
   }
 
   run<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    return AsyncContext.runWithData(this, data, callback);
+    return AsyncContext.runInFork(() => {
+      const current = AsyncStack.getCurrent();
+      this.set(current, data);
+      return callback();
+    });
   }
 
-  wrap<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    return AsyncContext.wrapWithData(this, data, callback);
+  wrap<Fn extends AnyFunction>(data: Value, callback: Fn): Fn {
+    // @ts-ignore
+    return (...args) => this.run(data, () => callback(...args));
   }
 
   withData(data: Value) {
