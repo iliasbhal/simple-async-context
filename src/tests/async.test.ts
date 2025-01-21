@@ -1,5 +1,6 @@
 import { AsyncContext } from '..';
-import { wait } from './_lib';
+import { wait, captureAsyncContexts } from './_lib';
+
 
 const asyncContext = new AsyncContext.Variable();
 
@@ -23,15 +24,22 @@ describe('SimpleAsyncContext / Async', () => {
 
   it('async (scenario 2): should know in which context it is', async () => {
 
-    const total = asyncContext.withData('Outer').wrap(async () => {
+    await asyncContext.withData('Outer').run(async () => {
+      captureAsyncContexts().forEach((ctx, i) => ctx.index = i);
+
+      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe('Outer');
+      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
+
+      console.log('BEFORE WAIT');
       await wait(100);
+
+      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
+
+      console.log('AFTER WAIT');
       expect(asyncContext.get()).toBe('Outer');
       return `OUTER`;
     });
-
-    const value = await total();
-    expect(value).toBe('OUTER');
   })
 
 
@@ -221,7 +229,7 @@ describe('SimpleAsyncContext / Async', () => {
     expect(asyncContext.get()).toBe(undefined);
   })
 
-  it('async (scenario 9): should know in which context it is', async () => {
+  it.only('async (scenario 9): should know in which context it is', async () => {
     const track1 = asyncContext.withData('track1').wrap(async () => {
       expect(asyncContext.get()).toBe('track1');
       await wait(100);

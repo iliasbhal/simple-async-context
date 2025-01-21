@@ -1,25 +1,25 @@
-import { AsyncVariable } from './AsyncVariable';
-import { AsyncContext } from './AsyncContext'
+import { AsyncContext } from './AsyncContext';
+import { AsyncStack } from '../polyfills/AsyncStack'
 
 type AnyFunction = (...args: any) => any;
 
 export class AsyncSnapshot {
-  stack: AsyncContext;
+  stack: AsyncStack;
 
   constructor() {
-    this.stack = AsyncSnapshot.capture();
+    // this.stack = AsyncSnapshot.capture();
   }
 
   static capture() {
-    const current = AsyncContext.getCurrent();
+    const current = AsyncStack.getCurrent();
 
-    const clone: AsyncContext = new AsyncContext(null);
-    AsyncContext.Variable.all.forEach((asyncVariable) => {
-      const variableData = current.getData(asyncVariable)
-      clone.setData(asyncVariable, variableData);
-    });
+    // const clone: AsyncStack = new AsyncStack(null);
+    // AsyncContext.Variable.all.forEach((asyncVariable) => {
+    //   const variableData = current.getData(asyncVariable)
+    //   clone.setData(asyncVariable, variableData);
+    // });
 
-    return clone;
+    // return clone;
   }
 
   static create() {
@@ -27,11 +27,11 @@ export class AsyncSnapshot {
   }
 
   run<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.runWithSnapshot(this, callback);
+    // return AsyncContext.runWithSnapshot(this, callback);
   }
 
   wrap<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.wrapWithSnapshot(this, callback);
+    // return AsyncContext.wrapWithSnapshot(this, callback);
   }
 
   static wrap<Fn extends AnyFunction>(callback: Fn) {
