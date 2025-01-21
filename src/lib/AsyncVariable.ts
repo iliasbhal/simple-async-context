@@ -9,55 +9,21 @@ export class AsyncVariable<Value = any> {
     AsyncVariable.all.add(this);
   }
 
-  *walk() {
-    for (const a of AsyncVariable.walk(this)) {
-      yield a;
-    };
-  }
-
-  static *walk(variable: AsyncVariable<any>) {
-    let current = AsyncContext.getCurrent();
-
-    while (true) {
-
-      const value = current?.getData(variable);
-      if (value !== undefined) {
-        yield value.value;
-      }
-
-      if (!current) break;
-      current = current?.parent;
-    }
-  }
-
-  static getVariable(variable: AsyncVariable<any> | null) {
-    let current = AsyncContext.getCurrent();
-
-    while (true) {
-      const value = current?.getData(variable);
-      if (value !== undefined) {
-        return value?.value;
-      }
-
-      if (!current) break;
-      current = current?.parent;
-    }
-  }
-
   dispose() {
     AsyncVariable.all.delete(this);
   }
 
   get(): Value {
-    return AsyncVariable.getVariable(this);
+    const current = AsyncContext.getCurrent();
+    return current?.getData(this)
   }
 
   run<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    return AsyncContext.runWithData(this, { value: data }, callback);
+    return AsyncContext.runWithData(this, data, callback);
   }
 
   wrap<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    return AsyncContext.wrapWithData(this, { value: data }, callback);
+    return AsyncContext.wrapWithData(this, data, callback);
   }
 
   withData(data: Value) {

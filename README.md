@@ -61,13 +61,13 @@ async function main() {
     }, randomTimeout());
 
     context.run("B", async () => { // contexts can be nested.
+      context.get(); // => 'B'
+
       await wait(randomTimeout());
 
       context.get(); // => 'B'
 
-      for (const ctx of context.walk()) {
-        console.log(ctx) // B -> A -> top
-      }
+      await wait(randomTimeout());
 
       context.get(); // => 'B'  // contexts are restored 
 
@@ -78,6 +78,8 @@ async function main() {
 
 
     context.run("C", async () => { // contexts can be nested.
+      context.get(); // => 'C'
+
       await wait(randomTimeout());
 
       context.get(); // => 'C'
