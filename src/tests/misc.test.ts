@@ -2,6 +2,7 @@ import { AsyncContext } from '..';
 import { Polyfill } from '../polyfills';
 import { captureAsyncContexts, createRecursive, wait } from './_lib';
 import { createHofWithContext } from '../polyfills/createHofWithContext';
+import { AsyncVariable } from '../lib/AsyncVariable';
 
 const asyncContext = new AsyncContext.Variable();
 
@@ -45,7 +46,7 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(AsyncContext.Global);
+    expect(topmostStask).toEqual(AsyncContext.Root);
   })
 
 
@@ -62,12 +63,12 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(DEEPNESS + currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(AsyncContext.Global);
+    expect(topmostStask).toEqual(AsyncContext.Root);
   })
 
   it('should cache variable when traversing deep stack', async () => {
     const context = new AsyncContext.Variable();
-    const spy = jest.spyOn(AsyncContext.prototype, 'getBox' as any);
+    const spy = jest.spyOn(AsyncVariable.prototype, 'getBox' as any);
 
     const calls = [];
     const recursiveContextCallback = async (remainaingRecusrsiveSteps: number) => {
@@ -89,7 +90,9 @@ describe('Misc', () => {
       await recursiveContextCallback(10);
     });
 
+    expect(calls[0]).toBeGreaterThanOrEqual(10);
     expect(calls[1]).toBe(1);
+    expect(calls).toHaveLength(2)
     // expect(spy).toHaveBeenCalledTimes(1);
   })
 

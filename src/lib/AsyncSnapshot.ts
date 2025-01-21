@@ -1,37 +1,38 @@
+import { AsyncStack } from '../polyfills/AsyncStack';
 import { AsyncContext } from './AsyncContext';
-import { AsyncStack } from '../polyfills/AsyncStack'
+import { AsyncVariable } from './AsyncVariable';
 
 type AnyFunction = (...args: any) => any;
 
 export class AsyncSnapshot {
-  stack: AsyncStack;
+  dataByVariable = new Map<AsyncVariable, any>();
 
-  constructor() {
-    // this.stack = AsyncSnapshot.capture();
-  }
-
-  static capture() {
-    const current = AsyncStack.getCurrent();
-
-    // const clone: AsyncStack = new AsyncStack(null);
-    // AsyncContext.Variable.all.forEach((asyncVariable) => {
-    //   const variableData = current.getData(asyncVariable)
-    //   clone.setData(asyncVariable, variableData);
-    // });
-
-    // return clone;
+  capture() {
+    AsyncContext.Variable.all.forEach((asyncVariable) => {
+      const data = asyncVariable.get();
+      this.dataByVariable.set(asyncVariable, data)
+    });
   }
 
   static create() {
-    return new AsyncSnapshot();
+    const snapshot = new AsyncSnapshot();
+    snapshot.capture();
+    return snapshot;
   }
 
   run<Fn extends AnyFunction>(callback: Fn) {
-    // return AsyncContext.runWithSnapshot(this, callback);
+    return AsyncContext.runInFork(() => {
+      const current = AsyncStack.getCurrent();
+      this.dataByVariable.forEach((data, variable) => {
+        variable.set(current, data);
+      })
+
+      return callback();
+    });
   }
 
   wrap<Fn extends AnyFunction>(callback: Fn) {
-    // return AsyncContext.wrapWithSnapshot(this, callback);
+    return (...args) => this.run(() => callback(...args));
   }
 
   static wrap<Fn extends AnyFunction>(callback: Fn) {

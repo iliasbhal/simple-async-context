@@ -1,4 +1,5 @@
 import { AsyncStack } from '../polyfills/AsyncStack';
+import { AsyncContext } from './AsyncContext';
 
 type AnyFunction = (...args: any) => any;
 
@@ -7,7 +8,7 @@ type VariableDataBox<Value = any> = { value: Value }
 export class AsyncVariable<Value = any> {
   static all = new Set<AsyncVariable>();
 
-  data = new Map<AsyncStack, VariableDataBox>
+  data = new WeakMap<AsyncStack, VariableDataBox>
 
   constructor() {
     AsyncVariable.all.add(this);
@@ -17,16 +18,15 @@ export class AsyncVariable<Value = any> {
     AsyncVariable.all.delete(this);
   }
 
-  getBox() {
-    let current = AsyncStack.getCurrent();
-    while (true) {
+  getBox(stack: AsyncStack) {
+    if (!stack) return undefined;
 
-      if (!current) break;
-      const box = this.data.get(current);
-      if (box) return box;
+    const currentBox = this.data.get(stack);
+    if (currentBox) return currentBox;
 
-      current = current?.origin;
-    }
+    const parentBox = this.getBox(stack.origin);
+    if (parentBox) this.data.set(stack, parentBox);
+    return parentBox;
   }
 
   set(stack: AsyncStack, data: any) {
@@ -36,24 +36,21 @@ export class AsyncVariable<Value = any> {
   }
 
   get(): Value {
-    return this.getBox()?.value;
+    const current = AsyncStack.getCurrent();
+    return this.getBox(current)?.value;
   }
 
   run<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    const current = AsyncStack.getCurrent();
-    const before = this.data.get(current);
-    this.set(current, data);
-    const result = callback();
-    this.set(current, before);
-    return result;
+    return AsyncContext.runInFork(() => {
+      const current = AsyncStack.getCurrent();
+      this.set(current, data);
+      return callback();
+    });
   }
 
-  wrap<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    const wrapped = (...args) => {
-      return this.run(data, () => callback(...args));
-    };
-
-    return wrapped as Fn;
+  wrap<Fn extends AnyFunction>(data: Value, callback: Fn): Fn {
+    // @ts-ignore
+    return (...args) => this.run(data, () => callback(...args));
   }
 
   withData(data: Value) {

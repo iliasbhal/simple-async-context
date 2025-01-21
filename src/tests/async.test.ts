@@ -1,5 +1,5 @@
 import { AsyncContext } from '..';
-import { wait, captureAsyncContexts } from './_lib';
+import { wait, createAsyncDebugger } from './_lib';
 
 
 const asyncContext = new AsyncContext.Variable();
@@ -26,18 +26,15 @@ describe('SimpleAsyncContext / Async', () => {
   it('async (scenario 2): should know in which context it is', async () => {
 
     await asyncContext.withData('Outer').run(async () => {
-      captureAsyncContexts().forEach((ctx, i) => ctx.index = i);
+      // captureAsyncContexts().forEach((ctx, i) => ctx.index = i);
 
-      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe('Outer');
-      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
-
-      console.log('BEFORE WAIT');
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
+      ;
       await wait(100);
 
-      console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
-
-      console.log('AFTER WAIT');
+      // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe('Outer');
       return `OUTER`;
     });
@@ -230,36 +227,36 @@ describe('SimpleAsyncContext / Async', () => {
     expect(asyncContext.get()).toBe(undefined);
   })
 
-  it.only('async (scenario 9): should know in which context it is', async () => {
-    const track1 = asyncContext.withData('track1').wrap(async () => {
-      const util = createStackDebugger()
+  it('async (scenario 9): should know in which context it is', async () => {
+    // const util = createAsyncDebugger('global');
 
-      util.debug('track1');
-      // expect(asyncContext.get()).toBe('track1');
+    const track1 = asyncContext.withData('track1').wrap(async () => {
+
+      // util.debug('track1.1');
+      expect(asyncContext.get()).toBe('track1');
       await wait(100);
 
-      util.debug('track1');
-      // expect(asyncContext.get()).toBe('track1');
+      // util.debug('track1.2');
+      expect(asyncContext.get()).toBe('track1');
     });
 
     const track2 = asyncContext.withData('track2').wrap(async () => {
-      const util = createStackDebugger()
 
-      util.debug('track2');
-      // expect(asyncContext.get()).toBe('track2');
+      // util.debug('track2.1');
+      expect(asyncContext.get()).toBe('track2');
       await wait(100);
 
-      util.debug('track2');
+      // util.debug('track2.2');
       expect(asyncContext.get()).toBe('track2');
     });
 
-    // expect(asyncContext.get()).toBe(undefined);
+    expect(asyncContext.get()).toBe(undefined);
 
     track1();
     track2();
 
     await wait(1000)
-    // expect(asyncContext.get()).toBe(undefined);
+    expect(asyncContext.get()).toBe(undefined);
   })
 
   it('async (scenario 9/bis): should know in which context it is', async () => {
