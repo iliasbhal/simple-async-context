@@ -1,6 +1,6 @@
 import { AsyncContext } from '..';
 import { Polyfill } from '../polyfills';
-import { wait } from './_lib';
+import { captureAsyncContexts, createRecursive, wait } from './_lib';
 import { createHofWithContext } from '../polyfills/createHofWithContext';
 
 const asyncContext = new AsyncContext.Variable();
@@ -32,14 +32,46 @@ describe('Misc', () => {
 
   })
 
+  it('traces back to root context in sync', () => {
+    const DEEPNESS = 10;
+    const currentStack = captureAsyncContexts();
+    const unfoldAsyncStack = createRecursive({
+      async: false,
+      deepness: DEEPNESS,
+      callback: captureAsyncContexts
+    })
+
+    const stackTrace = unfoldAsyncStack();
+    expect(stackTrace.length).toEqual(currentStack.length);
+
+    const topmostStask = stackTrace[stackTrace.length - 1];
+    expect(topmostStask).toEqual(AsyncContext.Global);
+  })
+
+
+  it('traces back to root context in async', async () => {
+    const DEEPNESS = 10;
+    const currentStack = captureAsyncContexts();
+    const unfoldAsyncStack = createRecursive({
+      async: true,
+      deepness: DEEPNESS,
+      callback: captureAsyncContexts
+    })
+
+    const stackTrace = await unfoldAsyncStack();
+    expect(stackTrace.length).toEqual(DEEPNESS + currentStack.length);
+
+    const topmostStask = stackTrace[stackTrace.length - 1];
+    expect(topmostStask).toEqual(AsyncContext.Global);
+  })
+
   it('should cache variable when traversing deep stack', async () => {
     const context = new AsyncContext.Variable();
     const spy = jest.spyOn(AsyncContext.prototype, 'getBox' as any);
 
-    const NESTING = 10;
     const calls = [];
-    const recursiveContextCallback = async (level: number, current: number = 0) => {
-      if (level == current) {
+    const recursiveContextCallback = async (remainaingRecusrsiveSteps: number) => {
+      if (remainaingRecusrsiveSteps === 0) {
         context.get();
         calls.push(spy.mock.calls.length)
         spy.mockClear();
@@ -50,11 +82,11 @@ describe('Misc', () => {
         return
       }
 
-      await recursiveContextCallback(level, current + 1);
+      await recursiveContextCallback(remainaingRecusrsiveSteps - 1);
     }
 
     await context.run("A", async () => {
-      await recursiveContextCallback(NESTING);
+      await recursiveContextCallback(10);
     });
 
     expect(calls[1]).toBe(1);
@@ -127,7 +159,6 @@ describe('Misc', () => {
 
   })
 })
-
 
 const testContextData = async (contextData: any) => {
   const deepInnerWrapperCallback = async () => {

@@ -5,9 +5,11 @@ type AnyFunction = (...args: any) => any;
 
 type VariableDataBox<Value = any> = { value: Value }
 
+const GlobalSymbol = Symbol('Global');
+
 export class AsyncContext {
-  private static Global = new AsyncContext(null);
-  private static current: AsyncContext = null
+  static Global = new AsyncContext(GlobalSymbol);
+  private static current: AsyncContext = AsyncContext.Global;
 
   static getCurrent(): AsyncContext {
     const current = this.current;
@@ -103,8 +105,10 @@ export class AsyncContext {
   origin?: AsyncContext;
   data = new Map<AsyncVariable, VariableDataBox>();
 
-  constructor(origin: AsyncContext | null) {
-    this.origin = origin || AsyncContext.Global;
+  constructor(origin?: AsyncContext | typeof GlobalSymbol) {
+    if (origin !== GlobalSymbol) {
+      this.origin = origin;
+    }
   }
 
   private getBox(variable: AsyncVariable | null): VariableDataBox {
