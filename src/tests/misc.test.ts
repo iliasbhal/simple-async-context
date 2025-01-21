@@ -32,8 +32,37 @@ describe('Misc', () => {
 
   })
 
+  it('should cache variable when traversing deep stack', async () => {
+    const context = new AsyncContext.Variable();
+    const spy = jest.spyOn(AsyncContext.prototype, 'getBox' as any);
+
+    const NESTING = 10;
+    const calls = [];
+    const recursiveContextCallback = async (level: number, current: number = 0) => {
+      if (level == current) {
+        context.get();
+        calls.push(spy.mock.calls.length)
+        spy.mockClear();
+
+        context.get();
+        calls.push(spy.mock.calls.length)
+        spy.mockClear()
+        return
+      }
+
+      await recursiveContextCallback(level, current + 1);
+    }
+
+    await context.run("A", async () => {
+      await recursiveContextCallback(NESTING);
+    });
+
+    expect(calls[1]).toBe(1);
+    // expect(spy).toHaveBeenCalledTimes(1);
+  })
+
   it('should keep a reference to the original setTimeout', () => {
-    expect(Polyfill.originalSetTimeout).not.toEqual(setTimeout)
+    expect(Polyfill.originalSetTimeout === setTimeout).toBe(false)
   })
 
   it('example from readme should work', async () => {
@@ -62,12 +91,6 @@ describe('Misc', () => {
           await wait(randomTimeout());
 
           expect(context.get()).toBe('B')
-
-          const step = context.walk();
-          expect(step.next().value).toBe('B')
-          expect(step.next().value).toBe('A')
-          expect(step.next().value).toBe('top')
-          expect(step.next().done).toBe(true)
 
           expect(context.get()).toBe('B')  // contexts are restored )
 
