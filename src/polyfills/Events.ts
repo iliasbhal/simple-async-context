@@ -4,7 +4,7 @@ import { runInStack } from "./createHofWithContext";
 const originalAddEventListerner = EventTarget.prototype.addEventListener;
 const originalDispatchEvent = EventTarget.prototype.dispatchEvent;
 
-const stackByEvent = new Map<Event, AsyncStack>();
+const stackByEvent = new WeakMap<Event, AsyncStack>();
 
 export const dispatchWithContext: typeof originalDispatchEvent = function (event) {
   const stack = AsyncStack.getCurrent();
