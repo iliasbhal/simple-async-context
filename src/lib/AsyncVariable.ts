@@ -1,15 +1,15 @@
-import { AsyncStack } from '../polyfills/AsyncStack';
-import { runInFork } from './utils/runInFork';
+import { AsyncStack } from "../polyfills/AsyncStack";
+import { runInFork } from "./utils/runInFork";
 
 type AnyFunction = (...args: any) => any;
 
-type VariableDataBox<Value = any> = { value: Value }
+type VariableDataBox<Value = any> = { value: Value };
 
 export class AsyncVariable<Value = any> {
-  data = new WeakMap<AsyncStack, VariableDataBox>
+  data = new WeakMap<AsyncStack, VariableDataBox>();
 
-  static stopWalkAt = new WeakSet<AsyncStack>;
-  static variableByStack = new WeakMap<AsyncStack, Set<AsyncVariable>>;
+  static stopWalkAt = new WeakSet<AsyncStack>();
+  static variableByStack = new WeakMap<AsyncStack, Set<AsyncVariable>>();
   static registerVariable(variable: AsyncVariable, stack: AsyncStack) {
     if (!AsyncVariable.variableByStack.has(stack)) {
       AsyncVariable.variableByStack.set(stack, new Set());
@@ -18,14 +18,13 @@ export class AsyncVariable<Value = any> {
     AsyncVariable.variableByStack.get(stack).add(variable);
   }
 
-
   getBox(stack: AsyncStack): VariableDataBox<Value> | undefined {
     if (!stack) return undefined;
 
     const currentBox = this.data.get(stack);
     if (currentBox) return currentBox;
 
-    const canWalkOrigin = AsyncVariable.stopWalkAt.has(stack)
+    const canWalkOrigin = AsyncVariable.stopWalkAt.has(stack);
     if (canWalkOrigin) return undefined;
 
     const parentBox = this.getBox(stack.origin);
@@ -40,7 +39,7 @@ export class AsyncVariable<Value = any> {
 
   set(stack: AsyncStack, data: any) {
     this.setBox(stack, {
-      value: data
+      value: data,
     });
   }
 
@@ -70,6 +69,6 @@ export class AsyncVariable<Value = any> {
       wrap: <Fn extends AnyFunction>(callback: Fn) => {
         return this.wrap(data, callback);
       },
-    }
+    };
   }
 }

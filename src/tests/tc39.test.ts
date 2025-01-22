@@ -1,17 +1,15 @@
-import { AsyncContext } from '../'
+import { AsyncContext } from "../";
 
 type Value = { id: number };
 
 const assert = {
   equal: (actual: any, expected: any) => {
     expect(actual).toEqual(expected);
-  }
-}
+  },
+};
 
 describe("TC39 - Async Context Test", () => {
   describe("sync", () => {
-
-
     describe("run and get", () => {
       test("has initial undefined state", () => {
         const ctx = new AsyncContext.Variable<Value>();
@@ -198,7 +196,7 @@ describe("TC39 - Async Context Test", () => {
             assert.equal(b.get(), undefined);
           });
 
-          a.run(second, () => { });
+          a.run(second, () => {});
 
           const wrap2 = AsyncContext.Snapshot.wrap(() => {
             assert.equal(a.get(), first);
@@ -244,7 +242,7 @@ describe("TC39 - Async Context Test", () => {
             assert.equal(b.get(), undefined);
           });
 
-          b.run(second, () => { });
+          b.run(second, () => {});
 
           const wrap2 = AsyncContext.Snapshot.wrap(() => {
             assert.equal(a.get(), first);
@@ -395,7 +393,7 @@ describe("TC39 - Async Context Test", () => {
 
         const wrap = a.run(first, () => {
           const wrap = b.run(second, () => {
-            AsyncContext.Snapshot.wrap(() => { });
+            AsyncContext.Snapshot.wrap(() => {});
 
             const wrap = c.run(third, () => {
               return AsyncContext.Snapshot.wrap(() => {
@@ -434,7 +432,7 @@ describe("TC39 - Async Context Test", () => {
         const third = { id: 3 };
 
         const wrap = a.run(first, () => {
-          AsyncContext.Snapshot.wrap(() => { });
+          AsyncContext.Snapshot.wrap(() => {});
 
           const wrap = b.run(second, () => {
             const wrap = c.run(third, () => {
@@ -483,7 +481,7 @@ describe("TC39 - Async Context Test", () => {
               });
             });
 
-            AsyncContext.Snapshot.wrap(() => { });
+            AsyncContext.Snapshot.wrap(() => {});
 
             assert.equal(a.get(), first);
             assert.equal(b.get(), second);
@@ -529,7 +527,7 @@ describe("TC39 - Async Context Test", () => {
             return wrap;
           });
 
-          AsyncContext.Snapshot.wrap(() => { });
+          AsyncContext.Snapshot.wrap(() => {});
 
           assert.equal(a.get(), first);
           assert.equal(b.get(), undefined);

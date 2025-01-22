@@ -1,9 +1,10 @@
-import { OriginalPromise, PromiseWithContext, } from "./PromiseWithContext";
-import { addEventListenerWithContext, dispatchWithContext } from './Events';
+import { OriginalPromise, PromiseWithContext } from "./PromiseWithContext";
+import { addEventListenerWithContext, dispatchWithContext } from "./Events";
 import { withContext } from "./createHofWithContext";
 
-const root = (typeof global !== 'undefined' && global) ||
-  (typeof window !== 'undefined' && window)
+const root =
+  (typeof global !== "undefined" && global) ||
+  (typeof window !== "undefined" && window);
 
 export class Polyfill {
   static originalSetTimeout = setTimeout;
@@ -23,6 +24,6 @@ export class Polyfill {
     root.setImmediate = withContext(root.setImmediate);
 
     EventTarget.prototype.addEventListener = addEventListenerWithContext;
-    EventTarget.prototype.dispatchEvent = dispatchWithContext
+    EventTarget.prototype.dispatchEvent = dispatchWithContext;
   }
 }

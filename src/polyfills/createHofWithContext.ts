@@ -2,7 +2,11 @@ import { AsyncStack } from "./AsyncStack";
 
 type AnyFunction = (...args: any) => any;
 
-export const createAsyncResolver = (stack: AsyncStack, callback: AnyFunction, onlyOnce: boolean = true) => {
+export const createAsyncResolver = (
+  stack: AsyncStack,
+  callback: AnyFunction,
+  onlyOnce: boolean = true,
+) => {
   let called = false;
 
   return function (...args: any[]) {
@@ -17,19 +21,22 @@ export const createAsyncResolver = (stack: AsyncStack, callback: AnyFunction, on
     // fork.yield()
 
     return result;
-  }
-}
+  };
+};
 
 // This function ensure that the context is passed to the callback
 // That is called by the higher order function
-export const withContext = <Callback extends AnyFunction | undefined>(originalCallback: Callback, onlyOnce: boolean = true): Callback => {
-  if (typeof originalCallback === "undefined") return undefined
+export const withContext = <Callback extends AnyFunction | undefined>(
+  originalCallback: Callback,
+  onlyOnce: boolean = true,
+): Callback => {
+  if (typeof originalCallback === "undefined") return undefined;
 
   return function (...args: any[]) {
-    const fork = AsyncStack.fork()
+    const fork = AsyncStack.fork();
 
     const patchedArgs = args.map((arg) => {
-      if (typeof arg === 'function') {
+      if (typeof arg === "function") {
         return createAsyncResolver(fork, arg, onlyOnce);
       }
 
@@ -38,9 +45,9 @@ export const withContext = <Callback extends AnyFunction | undefined>(originalCa
 
     const result = originalCallback.call(this, ...patchedArgs);
     fork.yield();
-    return result
-  } as any
-}
+    return result;
+  } as any;
+};
 
 export const runInStack = (stackToUse: AsyncStack, callback: Function) => {
   const currentStack = AsyncStack.getCurrent();
@@ -54,5 +61,4 @@ export const runInStack = (stackToUse: AsyncStack, callback: Function) => {
     currentStack.start();
     throw err;
   }
-
-}
+};

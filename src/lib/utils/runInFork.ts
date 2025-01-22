@@ -1,6 +1,6 @@
 export const runInFork = (callback: Function) => {
-  let result
-  let error
+  let result;
+  let error;
 
   new Promise((resolve) => {
     try {
@@ -16,4 +16,4 @@ export const runInFork = (callback: Function) => {
   }
 
   return result;
-}
+};

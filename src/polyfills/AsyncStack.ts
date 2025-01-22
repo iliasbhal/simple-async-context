@@ -1,4 +1,4 @@
-const GlobalSymbol = Symbol('Global');
+const GlobalSymbol = Symbol("Global");
 
 export class AsyncStack {
   // @ts-expect-error
@@ -14,13 +14,13 @@ export class AsyncStack {
     this.current = ctx;
   }
 
-  static NO_DATA = Symbol('NO_DATA');
+  static NO_DATA = Symbol("NO_DATA");
 
   static fork() {
     const origin = AsyncStack.getCurrent();
     const fork = new AsyncStack(origin);
     fork.start();
-    return fork
+    return fork;
   }
 
   origin?: AsyncStack;
@@ -43,6 +43,3 @@ export class AsyncStack {
     AsyncStack.set(this.origin);
   }
 }
-
-
-
