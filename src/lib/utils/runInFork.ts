@@ -1,10 +1,19 @@
 export const runInFork = (callback: Function) => {
   let result
+  let error
 
   new Promise((resolve) => {
-    result = callback();
-    resolve(result);
-  })
+    try {
+      result = callback();
+      resolve(result);
+    } catch (err) {
+      error = err;
+    }
+  });
+
+  if (error) {
+    throw error;
+  }
 
   return result;
 }
