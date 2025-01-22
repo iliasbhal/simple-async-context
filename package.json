@@ -1,5 +1,5 @@
 {
-  "version": "0.0.22",
+  "version": "0.0.23",
   "name": "simple-async-context",
   "description": "Async context for node and the browser",
   "main": "build/index.js",
