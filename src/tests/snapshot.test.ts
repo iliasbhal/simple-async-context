@@ -98,16 +98,42 @@ describe('AsyncContext / Snapshot', () => {
   })
 
   it('snapshot (scenario 4): should know in which context it is', async () => {
-    const asyncContext = new AsyncContext.Variable();
-    const asyncContext2 = new AsyncContext.Variable();
+    const asyncContext = new AsyncContext.Variable('1');
+    const asyncContext2 = new AsyncContext.Variable('2');
+
+    let snapshot;
+    await asyncContext.run('Outer', () => {
+      return asyncContext.run('Middle', async () => {
+        asyncContext.get()
+        await wait(100)
+        return asyncContext2.run('Inner', async () => {
+          asyncContext.get()
+          await wait(100);
+          snapshot = AsyncContext.Snapshot.create()
+        })
+      });
+    });
+
+    snapshot.run(() => {
+      expect(asyncContext.get()).toBe('Middle');
+      expect(asyncContext2.get()).toBe('Inner');
+    });
+
+    await wait(1000)
+  })
+
+  it('snapshot (scenario 5): should know in which context it is', async () => {
+    const asyncContext = new AsyncContext.Variable('1');
+    const asyncContext2 = new AsyncContext.Variable('2');
 
     let snapshot: AsyncSnapshot = null;
 
     const innerCallback = asyncContext.withData('Inner').wrap(async () => {
+
       return asyncContext2.run('Inner 2', async () => {
         expect(asyncContext.get()).toBe('Inner')
+        asyncContext2.get();
         await wait(100);
-
         snapshot = AsyncContext.Snapshot.create()
         expect(asyncContext.get()).toBe('Inner')
       })
@@ -143,45 +169,6 @@ describe('AsyncContext / Snapshot', () => {
 
     await wait(1000)
 
-  })
-
-  it('should keep have access to data even if variable is disposed', async () => {
-    const asyncContext = new AsyncContext.Variable();
-    const asyncContext2 = new AsyncContext.Variable();
-
-    let snapshot: AsyncSnapshot = null;
-
-    const innerCallback = asyncContext.withData('Inner').wrap(async () => {
-      return asyncContext2.run('Inner 2', async () => {
-        expect(asyncContext.get()).toBe('Inner')
-        await wait(100);
-
-        snapshot = AsyncContext.Snapshot.create()
-        expect(asyncContext.get()).toBe('Inner')
-      })
-    });
-
-    const total = asyncContext.withData('Outer').wrap(async () => {
-      expect(asyncContext.get()).toBe('Outer')
-      await innerCallback();
-      expect(asyncContext.get()).toBe('Outer')
-    });
-
-    await total();
-
-    asyncContext.dispose();
-    asyncContext2.dispose();
-
-    // Ensure we don't have any reference to the original variable
-    AsyncContext.Variable.all.forEach((variable) => {
-      expect(variable).not.toBe(asyncContext);
-      expect(variable).not.toBe(asyncContext2);
-    })
-
-    snapshot.run(() => {
-      expect(asyncContext.get()).toBe('Inner');
-      expect(asyncContext2.get()).toBe('Inner 2');
-    });
   })
 })
 

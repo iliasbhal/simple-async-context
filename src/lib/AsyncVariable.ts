@@ -6,31 +6,41 @@ type AnyFunction = (...args: any) => any;
 type VariableDataBox<Value = any> = { value: Value }
 
 export class AsyncVariable<Value = any> {
-  static all = new Set<AsyncVariable>();
-
   data = new WeakMap<AsyncStack, VariableDataBox>
 
-  constructor() {
-    AsyncVariable.all.add(this);
+  debugId?: string
+  constructor(id?: string) {
+    if (id) this.debugId = id;
   }
 
-  dispose() {
-    AsyncVariable.all.delete(this);
+  static variableByStack = new WeakMap<AsyncStack, Set<AsyncVariable>>;
+  static registerVariable(variable: AsyncVariable, stack: AsyncStack) {
+    if (!AsyncVariable.variableByStack.has(stack)) {
+      AsyncVariable.variableByStack.set(stack, new Set());
+    }
+
+    AsyncVariable.variableByStack.get(stack).add(variable);
   }
 
-  getBox(stack: AsyncStack) {
+
+  getBox(stack: AsyncStack): VariableDataBox<Value> | undefined {
     if (!stack) return undefined;
 
     const currentBox = this.data.get(stack);
     if (currentBox) return currentBox;
 
     const parentBox = this.getBox(stack.origin);
-    if (parentBox) this.data.set(stack, parentBox);
+    if (parentBox) this.setBox(stack, parentBox);
     return parentBox;
   }
 
+  setBox(stack: AsyncStack, box: { value: Value }) {
+    AsyncVariable.registerVariable(this, stack);
+    this.data.set(stack, box);
+  }
+
   set(stack: AsyncStack, data: any) {
-    this.data.set(stack, {
+    this.setBox(stack, {
       value: data
     });
   }

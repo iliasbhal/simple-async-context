@@ -1,5 +1,4 @@
 import { AsyncStack } from '../polyfills/AsyncStack';
-import { AsyncContext } from './AsyncContext';
 import { AsyncVariable } from './AsyncVariable';
 import { runInFork } from './utils/runInFork';
 
@@ -9,10 +8,19 @@ export class AsyncSnapshot {
   dataByVariable = new Map<AsyncVariable, any>();
 
   capture() {
-    AsyncContext.Variable.all.forEach((asyncVariable) => {
-      const data = asyncVariable.get();
-      this.dataByVariable.set(asyncVariable, data)
-    });
+    let current = AsyncStack.getCurrent();
+    while (current) {
+      const variables = AsyncVariable.variableByStack.get(current)
+      variables?.forEach((variable) => {
+        const alreadyHasVariable = this.dataByVariable.has(variable);
+        if (!alreadyHasVariable) {
+          const value = variable.get();
+          this.dataByVariable.set(variable, value);
+        }
+      })
+
+      current = current.origin;
+    }
   }
 
   static create() {
