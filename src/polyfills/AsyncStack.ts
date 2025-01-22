@@ -36,25 +36,13 @@ export class AsyncStack {
     AsyncStack.set(this);
   }
 
+  // private yielded = false
   yield() {
+    // if (!this.yielded) return;
+    // this.yielded = true;
     AsyncStack.set(this.origin);
   }
-
-  createResolver(callback) {
-    let triggered = false;
-
-    return (...args: any[]) => {
-      if (triggered) return;
-      triggered = true;
-
-
-      this.yield();
-      // Note: Is this fork neecessary? All tests are passing without it.
-      // const fork = AsyncContext.fork()
-      const result = callback(...args);
-      // fork.reset();
-      return result;
-    }
-  }
 }
+
+
 

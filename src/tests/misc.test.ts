@@ -1,10 +1,13 @@
 import { AsyncContext } from '..';
 import { Polyfill } from '../polyfills';
 import { captureAsyncContexts, createRecursive, wait } from './_lib';
-import { createHofWithContext } from '../polyfills/createHofWithContext';
+import { withContext } from '../polyfills/createHofWithContext';
 import { AsyncVariable } from '../lib/AsyncVariable';
+import { AsyncStack } from '../polyfills/AsyncStack';
 
 const asyncContext = new AsyncContext.Variable();
+
+const RootStack = AsyncStack.getCurrent();
 
 describe('Misc', () => {
   describe('Misc / Data', () => {
@@ -21,10 +24,54 @@ describe('Misc', () => {
     });
   })
 
+  describe('EventTarget', () => {
+    const eventTarget = new EventTarget();
+    const context = new AsyncContext.Variable();
+    const context2 = new AsyncContext.Variable();
 
-  describe('createHofWithContext', () => {
+
+    const eventName = 'test-event';
+    const contextData = 'test-context-data';
+    const eventListenerSpy = jest.fn();
+
+    const eventListener = () => {
+      const value = context.get();
+      eventListenerSpy(value);
+    }
+
+    context.run(contextData, () => {
+      eventTarget.addEventListener(eventName, eventListener);
+    })
+
+    it('should be able to track context within an event listener', async () => {
+      await context2.run('noise', async () => {
+        eventTarget.dispatchEvent(new Event(eventName));
+        eventTarget.dispatchEvent(new Event(eventName));
+        eventTarget.dispatchEvent(new Event(eventName));
+      })
+
+      await wait(100);
+
+      expect(eventListenerSpy).toHaveBeenCalledTimes(3);
+      eventListenerSpy.mock.calls.forEach(([value]) => {
+        expect(value).toBe(contextData);
+      });
+
+      eventListenerSpy.mockClear();
+    });
+
+    it('should be able to removeEventListener', async () => {
+      eventTarget.removeEventListener(eventName, eventListener);
+
+      expect(eventListenerSpy).toHaveBeenCalledTimes(0);
+      eventListenerSpy.mockClear();
+    })
+  })
+
+
+  describe('withContext', () => {
     it('should propagate `this`', () => {
-      const wrapped = createHofWithContext(function () {
+      const wrapped = withContext(function () {
         expect(this).toBe('test');
       });
 
@@ -46,7 +93,7 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(AsyncContext.Root);
+    expect(topmostStask).toEqual(RootStack);
   })
 
 
@@ -63,7 +110,7 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(DEEPNESS + currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(AsyncContext.Root);
+    expect(topmostStask).toEqual(RootStack);
   })
 
   it('should cache variable when traversing deep stack', async () => {

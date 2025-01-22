@@ -1,5 +1,5 @@
 import { OriginalPromise, PromiseWithContext, } from "./PromiseWithContext";
-import { createHofWithContext } from "./createHofWithContext";
+import { withContext } from "./createHofWithContext";
 
 const root = (typeof global !== 'undefined' && global) ||
   (typeof window !== 'undefined' && window)
@@ -17,8 +17,10 @@ export class Polyfill {
     root.Promise = PromiseWithContext as any;
 
     // Polyfill Timers
-    root.setTimeout = createHofWithContext(root.setTimeout);
-    root.setInterval = createHofWithContext(root.setInterval);
-    root.setImmediate = createHofWithContext(root.setImmediate);
+    root.setTimeout = withContext(root.setTimeout);
+    root.setInterval = withContext(root.setInterval);
+    root.setImmediate = withContext(root.setImmediate);
+
+    EventTarget.prototype.addEventListener = withContext(EventTarget.prototype.addEventListener, false)
   }
 }

@@ -1,5 +1,5 @@
 import { AsyncStack } from '../polyfills/AsyncStack';
-import { AsyncContext } from './AsyncContext';
+import { runInFork } from './utils/runInFork';
 
 type AnyFunction = (...args: any) => any;
 
@@ -41,7 +41,7 @@ export class AsyncVariable<Value = any> {
   }
 
   run<Fn extends AnyFunction>(data: Value, callback: Fn) {
-    return AsyncContext.runInFork(() => {
+    return runInFork(() => {
       const current = AsyncStack.getCurrent();
       this.set(current, data);
       return callback();

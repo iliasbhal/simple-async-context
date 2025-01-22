@@ -1,21 +1,22 @@
 import { AsyncStack } from "./AsyncStack";
-import { createHofWithContext } from './createHofWithContext';
+import { createAsyncResolver, withContext } from './createHofWithContext';
 
 export const OriginalPromise = Promise;
 
 export const PromiseWithContext = function (callback) {
-  const originalPromise = new OriginalPromise((resolve, reject) => {
+  return new OriginalPromise((resolve, reject) => {
     const fork = AsyncStack.fork()
-    const wrapResolve = fork.createResolver(resolve);
-    const wrapReject = fork.createResolver(reject);
+    const wrapResolve = createAsyncResolver(fork, resolve);
+    const wrapReject = createAsyncResolver(fork, reject);
     callback(wrapResolve, wrapReject);
     fork.yield();
   });
-
-  this.then = createHofWithContext(originalPromise.then.bind(originalPromise))
-  this.catch = createHofWithContext(originalPromise.catch.bind(originalPromise))
-  this.finally = createHofWithContext(originalPromise.finally.bind(originalPromise))
 };
+
+OriginalPromise.prototype.then = withContext(OriginalPromise.prototype.then)
+OriginalPromise.prototype.catch = withContext(OriginalPromise.prototype.catch)
+OriginalPromise.prototype.finally = withContext(OriginalPromise.prototype.finally)
+
 
 // Ensure that all methods of the original Promise 
 // are available on the new PromiseWithContext

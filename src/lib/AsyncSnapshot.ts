@@ -1,6 +1,7 @@
 import { AsyncStack } from '../polyfills/AsyncStack';
 import { AsyncContext } from './AsyncContext';
 import { AsyncVariable } from './AsyncVariable';
+import { runInFork } from './utils/runInFork';
 
 type AnyFunction = (...args: any) => any;
 
@@ -21,7 +22,7 @@ export class AsyncSnapshot {
   }
 
   run<Fn extends AnyFunction>(callback: Fn) {
-    return AsyncContext.runInFork(() => {
+    return runInFork(() => {
       const current = AsyncStack.getCurrent();
       this.dataByVariable.forEach((data, variable) => {
         variable.set(current, data);
