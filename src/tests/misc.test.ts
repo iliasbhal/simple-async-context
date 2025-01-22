@@ -7,8 +7,6 @@ import { AsyncStack } from '../polyfills/AsyncStack';
 
 const asyncContext = new AsyncContext.Variable();
 
-const RootStack = AsyncStack.getCurrent();
-
 describe('Misc', () => {
   describe('Misc / Data', () => {
 
@@ -100,7 +98,7 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(RootStack);
+    expect(topmostStask).toEqual(AsyncStack.Global);
   })
 
 
@@ -117,7 +115,7 @@ describe('Misc', () => {
     expect(stackTrace.length).toEqual(DEEPNESS + currentStack.length);
 
     const topmostStask = stackTrace[stackTrace.length - 1];
-    expect(topmostStask).toEqual(RootStack);
+    expect(topmostStask).toEqual(AsyncStack.Global);
   })
 
   it('should cache variable when traversing deep stack', async () => {
