@@ -41,3 +41,11 @@ export const withContext = <Callback extends AnyFunction | undefined>(originalCa
     return result
   } as any
 }
+
+export const runInStack = (stackToUse: AsyncStack, callback: Function) => {
+  const currentStack = AsyncStack.getCurrent();
+  stackToUse.start();
+  const result = callback();
+  currentStack.start();
+  return result;
+}

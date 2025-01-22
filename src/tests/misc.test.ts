@@ -34,22 +34,29 @@ describe('Misc', () => {
     const contextData = 'test-context-data';
     const eventListenerSpy = jest.fn();
 
-    const eventListener = () => {
+    const eventListener = (event) => {
       const value = context.get();
       eventListenerSpy(value);
     }
 
-    context.run(contextData, () => {
-      eventTarget.addEventListener(eventName, eventListener);
+    context.run('noise', () => {
+      context2.run('noise', () => {
+        eventTarget.addEventListener(eventName, eventListener);
+      })
     })
 
     it('should be able to track context within an event listener', async () => {
-      await context2.run('noise', async () => {
-        eventTarget.dispatchEvent(new Event(eventName));
-        eventTarget.dispatchEvent(new Event(eventName));
-        eventTarget.dispatchEvent(new Event(eventName));
-      })
+      const prevStack = AsyncStack.getCurrent();
 
+      await context.run(contextData, async () => {
+        eventTarget.dispatchEvent(new Event(eventName));
+        eventTarget.dispatchEvent(new Event(eventName));
+        eventTarget.dispatchEvent(new Event(eventName));
+      });
+
+      const afterStack = AsyncStack.getCurrent();
+
+      expect(prevStack).toBe(afterStack)
       await wait(100);
 
       expect(eventListenerSpy).toHaveBeenCalledTimes(3);
