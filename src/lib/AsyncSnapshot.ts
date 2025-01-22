@@ -5,9 +5,9 @@ import { runInFork } from './utils/runInFork';
 type AnyFunction = (...args: any) => any;
 
 export class AsyncSnapshot {
-  dataByVariable = new Map<AsyncVariable, any>();
+  private dataByVariable = new Map<AsyncVariable, any>();
 
-  capture() {
+  private capture() {
     let current = AsyncStack.getCurrent();
     while (current) {
       const variables = AsyncVariable.variableByStack.get(current)
@@ -32,12 +32,15 @@ export class AsyncSnapshot {
   run<Fn extends AnyFunction>(callback: Fn) {
     return runInFork(() => {
       const current = AsyncStack.getCurrent();
+      AsyncVariable.stopWalkAt.add(current);
+
       this.dataByVariable.forEach((data, variable) => {
         variable.set(current, data);
       })
 
       return callback();
     });
+
   }
 
   wrap<Fn extends AnyFunction>(callback: Fn) {
@@ -45,7 +48,9 @@ export class AsyncSnapshot {
   }
 
   static wrap<Fn extends AnyFunction>(callback: Fn) {
-    const snapshot = AsyncSnapshot.create();
-    return snapshot.wrap(callback);
+    return runInFork(() => {
+      const snapshot = AsyncSnapshot.create();
+      return snapshot.wrap(callback);
+    })
   }
 }

@@ -8,11 +8,7 @@ type VariableDataBox<Value = any> = { value: Value }
 export class AsyncVariable<Value = any> {
   data = new WeakMap<AsyncStack, VariableDataBox>
 
-  debugId?: string
-  constructor(id?: string) {
-    if (id) this.debugId = id;
-  }
-
+  static stopWalkAt = new WeakSet<AsyncStack>;
   static variableByStack = new WeakMap<AsyncStack, Set<AsyncVariable>>;
   static registerVariable(variable: AsyncVariable, stack: AsyncStack) {
     if (!AsyncVariable.variableByStack.has(stack)) {
@@ -28,6 +24,9 @@ export class AsyncVariable<Value = any> {
 
     const currentBox = this.data.get(stack);
     if (currentBox) return currentBox;
+
+    const canWalkOrigin = AsyncVariable.stopWalkAt.has(stack)
+    if (canWalkOrigin) return undefined;
 
     const parentBox = this.getBox(stack.origin);
     if (parentBox) this.setBox(stack, parentBox);

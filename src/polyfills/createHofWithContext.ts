@@ -45,7 +45,14 @@ export const withContext = <Callback extends AnyFunction | undefined>(originalCa
 export const runInStack = (stackToUse: AsyncStack, callback: Function) => {
   const currentStack = AsyncStack.getCurrent();
   stackToUse.start();
-  const result = callback();
-  currentStack.start();
-  return result;
+
+  try {
+    const result = callback();
+    currentStack.start();
+    return result;
+  } catch (err) {
+    currentStack.start();
+    throw err;
+  }
+
 }

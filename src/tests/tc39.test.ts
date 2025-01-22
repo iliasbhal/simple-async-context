@@ -1,4 +1,4 @@
-import { AsyncContext } from '../..'
+import { AsyncContext } from '../'
 
 type Value = { id: number };
 

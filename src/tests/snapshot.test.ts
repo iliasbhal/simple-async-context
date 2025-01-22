@@ -98,8 +98,8 @@ describe('AsyncContext / Snapshot', () => {
   })
 
   it('snapshot (scenario 4): should know in which context it is', async () => {
-    const asyncContext = new AsyncContext.Variable('1');
-    const asyncContext2 = new AsyncContext.Variable('2');
+    const asyncContext = new AsyncContext.Variable();
+    const asyncContext2 = new AsyncContext.Variable();
 
     let snapshot;
     await asyncContext.run('Outer', () => {
@@ -123,8 +123,8 @@ describe('AsyncContext / Snapshot', () => {
   })
 
   it('snapshot (scenario 5): should know in which context it is', async () => {
-    const asyncContext = new AsyncContext.Variable('1');
-    const asyncContext2 = new AsyncContext.Variable('2');
+    const asyncContext = new AsyncContext.Variable();
+    const asyncContext2 = new AsyncContext.Variable();
 
     let snapshot: AsyncSnapshot = null;
 
@@ -169,6 +169,28 @@ describe('AsyncContext / Snapshot', () => {
 
     await wait(1000)
 
+  })
+
+  it('scenario 6: should know in which context it is', () => {
+    type Value = { id: number };
+    const a = new AsyncContext.Variable<Value>();
+    const b = new AsyncContext.Variable<Value>();
+    const first = { id: 1 };
+    const second = { id: 2 };
+
+    const snapshotCallback = a.run(first, () => {
+      return AsyncContext.Snapshot.wrap(() => {
+        expect(a.get()).toBe(first);
+        expect(b.get()).toBe(undefined);
+      });
+    });
+
+    b.run(second, () => {
+      snapshotCallback();
+    });
+
+    expect(a.get()).toBe(undefined);
+    expect(b.get()).toBe(undefined);
   })
 })
 
