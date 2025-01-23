@@ -27,7 +27,7 @@ describe("SimpleAsyncContext / Async", () => {
       // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe("Outer");
       // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
-      await wait(100);
+      await wait(30);
 
       // console.log(captureAsyncContexts().map((ctx, i) => ctx.index));
       expect(asyncContext.get()).toBe("Outer");
@@ -39,10 +39,10 @@ describe("SimpleAsyncContext / Async", () => {
     const total = asyncContext.withData("Outer").wrap(async () => {
       // console.log(SimpleAsyncContext.getId());
       expect(asyncContext.get()).toBe("Outer");
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getId());
       expect(asyncContext.get()).toBe("Outer");
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getId());
       expect(asyncContext.get()).toBe("Outer");
       return `OUTER`;
@@ -143,7 +143,7 @@ describe("SimpleAsyncContext / Async", () => {
     const deepCallback = async () => {
       expect(asyncContext.get()).toBe("Outer");
 
-      await wait(100);
+      await wait(30);
 
       expect(asyncContext.get()).toBe("Outer");
 
@@ -152,13 +152,13 @@ describe("SimpleAsyncContext / Async", () => {
 
     const innerCallback = async () => {
       expect(asyncContext.get()).toBe("Outer");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Outer");
 
       const value = await deepCallback();
 
       expect(asyncContext.get()).toBe("Outer");
-      await wait(100);
+      await wait(30);
 
       expect(asyncContext.get()).toBe("Outer");
 
@@ -184,18 +184,18 @@ describe("SimpleAsyncContext / Async", () => {
   it("async (scenario 8): should know in which context it is", async () => {
     const deepCallback = async () => {
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner");
       return "DEEP";
     };
 
     const innerCallback = asyncContext.withData("Inner").wrap(async () => {
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner");
       const value = await deepCallback();
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner");
       return `INNER ${value}`;
     });
@@ -222,7 +222,7 @@ describe("SimpleAsyncContext / Async", () => {
       // debugAsync.debug('track1.1');
 
       expect(asyncContext.get()).toBe("track1");
-      await wait(100);
+      await wait(30);
 
       // debugAsync.debug('track1.2');
       expect(asyncContext.get()).toBe("track1");
@@ -231,7 +231,7 @@ describe("SimpleAsyncContext / Async", () => {
     const track2 = asyncContext.withData("track2").wrap(async () => {
       // debugAsync.debug('track2.1');
       expect(asyncContext.get()).toBe("track2");
-      await wait(100);
+      await wait(30);
 
       // debugAsync.debug('track2.2');
       expect(asyncContext.get()).toBe("track2");
@@ -242,20 +242,20 @@ describe("SimpleAsyncContext / Async", () => {
     track1();
     track2();
 
-    await wait(1000);
+    await wait(100);
     expect(asyncContext.get()).toBe(undefined);
   });
 
   it("async (scenario 9/bis): should know in which context it is", async () => {
     const track1 = asyncContext.withData("track1").wrap(async () => {
       expect(asyncContext.get()).toBe("track1");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track1");
     });
 
     const track2 = asyncContext.withData("track2").wrap(async () => {
       expect(asyncContext.get()).toBe("track2");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track2");
     });
 
@@ -265,20 +265,20 @@ describe("SimpleAsyncContext / Async", () => {
     await wait(30);
     track2();
 
-    await wait(1000);
+    await wait(100);
     expect(asyncContext.get()).toBe(undefined);
   });
 
   it("async (scenario 9/bis/bis): should know in which context it is", async () => {
     const track1 = asyncContext.withData("track1").wrap(async () => {
       expect(asyncContext.get()).toBe("track1");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track1");
     });
 
     const track2 = asyncContext.withData("track2").wrap(async () => {
       expect(asyncContext.get()).toBe("track2");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track2");
     });
 
@@ -293,20 +293,20 @@ describe("SimpleAsyncContext / Async", () => {
       expect(asyncContext.get()).toBe(undefined);
     });
 
-    await wait(1000);
+    await wait(100);
     expect(asyncContext.get()).toBe(undefined);
   });
 
   it("async (scenario 9/bis/bis/bis): should know in which context it is", async () => {
     const track1 = asyncContext.withData("track1").wrap(async () => {
       expect(asyncContext.get()).toBe("track1");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track1");
     });
 
     const track2 = asyncContext.withData("track2").wrap(async () => {
       expect(asyncContext.get()).toBe("track2");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("track2");
     });
 
@@ -326,7 +326,7 @@ describe("SimpleAsyncContext / Async", () => {
       trackedAsyncData2 = asyncContext.get();
     });
 
-    await wait(1000);
+    await wait(100);
 
     expect(trackedAsyncData).toBe("Random Wrap");
     expect(trackedAsyncData2).toBe(undefined);
@@ -336,9 +336,9 @@ describe("SimpleAsyncContext / Async", () => {
   it("async (scenario 10): should know in which context it is", async () => {
     const innerCallback = asyncContext.withData("Inner").wrap(async () => {
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner");
       return `INNER`;
     });
@@ -365,10 +365,10 @@ describe("SimpleAsyncContext / Async", () => {
     const innerCallback = asyncContext.withData("Inner").wrap(async () => {
       expect(asyncContext.get()).toBe("Inner");
       // console.log(SimpleAsyncContext.getStackId())
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe("Inner");
       return `INNER`;
@@ -377,11 +377,11 @@ describe("SimpleAsyncContext / Async", () => {
     const inner2Callback = asyncContext.withData("Inner2").wrap(async () => {
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe("Inner2");
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe("Inner2");
       // console.log(SimpleAsyncContext.getStackId())
-      await wait(100);
+      await wait(30);
       expect(asyncContext.get()).toBe("Inner2");
       return `INNER2`;
     });
@@ -423,7 +423,7 @@ describe("SimpleAsyncContext / Async", () => {
   it("async (scenario 12): should know in which context it is", async () => {
     const overflowInner = asyncContext.withData("Overflow").wrap(async () => {
       expect(asyncContext.get()).toBe("Overflow");
-      await wait(90);
+      await wait(25);
       expect(asyncContext.get()).toBe("Overflow");
     });
 
@@ -431,10 +431,10 @@ describe("SimpleAsyncContext / Async", () => {
       expect(asyncContext.get()).toBe("Inner");
       overflowInner();
       // console.log(SimpleAsyncContext.getStackId())
-      await wait(100);
+      await wait(30);
       overflowInner();
       expect(asyncContext.get()).toBe("Inner");
-      await wait(100);
+      await wait(30);
       // console.log(SimpleAsyncContext.getStackId())
       expect(asyncContext.get()).toBe("Inner");
       return `INNER`;
@@ -451,6 +451,6 @@ describe("SimpleAsyncContext / Async", () => {
     });
 
     await total();
-    await wait(200);
+    await wait(80);
   });
 });

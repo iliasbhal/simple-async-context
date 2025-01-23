@@ -1,4 +1,4 @@
-import { AsyncStack } from "../polyfills/AsyncStack";
+import { AsyncStack } from "../polyfill/AsyncStack";
 import { AsyncVariable } from "./AsyncVariable";
 import { runInFork } from "./utils/runInFork";
 
@@ -23,9 +23,12 @@ export class AsyncSnapshot {
     }
   }
 
+  constructor() {
+    this.capture();
+  }
+
   static create() {
     const snapshot = new AsyncSnapshot();
-    snapshot.capture();
     return snapshot;
   }
 

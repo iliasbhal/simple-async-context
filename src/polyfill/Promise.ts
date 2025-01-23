@@ -1,5 +1,5 @@
 import { AsyncStack } from "./AsyncStack";
-import { createAsyncResolver, withContext } from "./createHofWithContext";
+import { createAsyncResolver, withContext } from "./_lib";
 
 export const OriginalPromise = Promise;
 

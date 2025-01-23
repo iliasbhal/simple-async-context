@@ -1,5 +1,5 @@
-import { AsyncStack } from "../polyfills/AsyncStack";
-import { Polyfill } from "../polyfills";
+import { AsyncStack } from "../polyfill/AsyncStack";
+import { Polyfill } from "../polyfill/Polyfill";
 
 export const wait = (timeout: number) =>
   new Promise((resolve) => Polyfill.originalSetTimeout(resolve, timeout));

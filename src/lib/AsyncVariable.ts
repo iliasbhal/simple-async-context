@@ -1,4 +1,4 @@
-import { AsyncStack } from "../polyfills/AsyncStack";
+import { AsyncStack } from "../polyfill/AsyncStack";
 import { runInFork } from "./utils/runInFork";
 
 type AnyFunction = (...args: any) => any;

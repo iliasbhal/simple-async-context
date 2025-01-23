@@ -1,5 +1,5 @@
 import { AsyncStack } from "./AsyncStack";
-import { runInStack } from "./createHofWithContext";
+import { runInStack } from "./_lib";
 
 const originalAddEventListerner = EventTarget.prototype.addEventListener;
 const originalDispatchEvent = EventTarget.prototype.dispatchEvent;

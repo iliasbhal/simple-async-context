@@ -1,9 +1,9 @@
 import { AsyncContext } from "..";
-import { Polyfill } from "../polyfills";
+import { Polyfill } from "../polyfill/Polyfill";
 import { captureAsyncContexts, createRecursive, wait } from "./_lib";
-import { withContext } from "../polyfills/createHofWithContext";
+import { withContext } from "../polyfill/_lib";
 import { AsyncVariable } from "../lib/AsyncVariable";
-import { AsyncStack } from "../polyfills/AsyncStack";
+import { AsyncStack } from "../polyfill/AsyncStack";
 
 const asyncContext = new AsyncContext.Variable();
 

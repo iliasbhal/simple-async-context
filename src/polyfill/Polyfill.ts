@@ -1,6 +1,6 @@
-import { OriginalPromise, PromiseWithContext } from "./PromiseWithContext";
+import { OriginalPromise, PromiseWithContext } from "./Promise";
 import { addEventListenerWithContext, dispatchWithContext } from "./Events";
-import { withContext } from "./createHofWithContext";
+import { withContext } from "./_lib";
 
 const root =
   (typeof global !== "undefined" && global) ||

@@ -170,7 +170,8 @@ describe("AsyncContext / Snapshot", () => {
     const second = { id: 2 };
 
     const snapshotCallback = a.run(first, () => {
-      return AsyncContext.Snapshot.wrap(() => {
+      const snapshot = new AsyncContext.Snapshot()
+      return snapshot.wrap(() => {
         expect(a.get()).toBe(first);
         expect(b.get()).toBe(undefined);
       });
