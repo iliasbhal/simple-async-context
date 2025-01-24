@@ -26,9 +26,7 @@
     "deploy": "yarn test &&yarn yarn build && npm publish",
     "lint": "prettier --write ./src",
     "test": "jest",
-    "build": "yarn build:ts && yarn build:dts",
-    "build:ts": "rm -rf ./build && babel --extensions .ts,.tsx ./src -d ./build --ignore '**/tests'",
-    "build:dts": "tsc --emitDeclarationOnly --project ./tsconfig.build.json",
+    "build": "rm -rf ./build && tsc --project ./tsconfig.build.json",
     "build:watch": "yarn build:ts -w & yarn build:dts -w",
     "prepublish": "yarn test && yarn build",
     "playground": "bun run --watch  ./scripts/playground.ts"
