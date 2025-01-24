@@ -26,11 +26,11 @@ That's why the feature and this polyfill are useful 🙃.
 
 1. Make sure that your code is compiled to remove native async/await. The simplest is to target `ES6` in your `tsconfig.json`. Another option would be to use babel with the config below. But other tools can do the trick as well.
 
-```json
+```tsx
 // tsconfig.json
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES6"
   }
 }
 
