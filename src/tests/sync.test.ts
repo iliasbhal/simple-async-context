@@ -6,7 +6,7 @@ describe("SimpleAsyncContext / Sync", () => {
   it("runs the callback", () => {
     const spy = jest.fn();
 
-    asyncContext.withData("Silbling").run(() => {
+    asyncContext.run("Silbling", () => {
       spy();
     });
 
@@ -16,7 +16,7 @@ describe("SimpleAsyncContext / Sync", () => {
 
   it("sync (scenario 1): should know in which context it is", () => {
     const spy = jest.fn();
-    const silblingCallback = asyncContext.withData("Silbling").wrap(() => {
+    const silblingCallback = asyncContext.wrap("Silbling", () => {
       spy();
       expect(asyncContext.get()).toBe("Silbling");
     });
@@ -37,7 +37,7 @@ describe("SimpleAsyncContext / Sync", () => {
   });
 
   it("sync (scenario 2): should know in which context it is", async () => {
-    const deepInnerCallback = asyncContext.withData("DeepInner").wrap(() => {
+    const deepInnerCallback = asyncContext.wrap("DeepInner", () => {
       expect(asyncContext.get()).toBe("DeepInner");
       return "DEEP";
     });
@@ -50,14 +50,14 @@ describe("SimpleAsyncContext / Sync", () => {
       return value;
     };
 
-    const innerCallback = asyncContext.withData("Inner").wrap(() => {
+    const innerCallback = asyncContext.wrap("Inner", () => {
       expect(asyncContext.get()).toBe("Inner");
       deepInnerWrapperCallback();
       expect(asyncContext.get()).toBe("Inner");
       return "INNER";
     });
 
-    const total = asyncContext.withData("Outer").wrap(() => {
+    const total = asyncContext.wrap("Outer", () => {
       expect(asyncContext.get()).toBe("Outer");
       const inner = innerCallback();
       expect(asyncContext.get()).toBe("Outer");
@@ -74,24 +74,24 @@ describe("SimpleAsyncContext / Sync", () => {
       expect(asyncContext.get()).toBe("Inner");
       return value;
     };
-    const deepInnerCallback = asyncContext.withData("DeepInner").wrap(() => {
+    const deepInnerCallback = asyncContext.wrap("DeepInner", () => {
       expect(asyncContext.get()).toBe("DeepInner");
       return "DEEP";
     });
 
-    const innerCallback = asyncContext.withData("Inner").wrap(() => {
+    const innerCallback = asyncContext.wrap("Inner", () => {
       expect(asyncContext.get()).toBe("Inner");
       const deep = deepInnerWrapperCallback();
       expect(asyncContext.get()).toBe("Inner");
       return "INNER" + " " + deep;
     });
 
-    const silblingCallback = asyncContext.withData("Silbling").wrap(() => {
+    const silblingCallback = asyncContext.wrap("Silbling", () => {
       expect(asyncContext.get()).toBe("Silbling");
       return "SILBLING";
     });
 
-    const total = asyncContext.withData("Outer").wrap(() => {
+    const total = asyncContext.wrap("Outer", () => {
       expect(asyncContext.get()).toBe("Outer");
       const inner = innerCallback();
       expect(asyncContext.get()).toBe("Outer");

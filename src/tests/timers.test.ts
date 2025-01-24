@@ -13,7 +13,7 @@ describe("AsyncContext / setTimeout", () => {
   });
 
   it("timer (scenario 1): should know in which context it is", async () => {
-    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+    const innerCallback = asyncContext.wrap("Inner", async () => {
       setTimeout(() => expect(asyncContext.get()).toBe("Inner"), 0);
       setTimeout(() => expect(asyncContext.get()).toBe("Inner"), 10);
       setTimeout(() => expect(asyncContext.get()).toBe("Inner"), 150);
@@ -22,7 +22,7 @@ describe("AsyncContext / setTimeout", () => {
       setTimeout(() => expect(asyncContext.get()).toBe("Inner"), 100);
     });
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       setTimeout(() => expect(asyncContext.get()).toBe("Outer"), 0);
       setTimeout(() => expect(asyncContext.get()).toBe("Outer"), 10);
       setTimeout(() => expect(asyncContext.get()).toBe("Outer"), 150);
@@ -43,7 +43,7 @@ describe("AsyncContext / setTimeout", () => {
   });
 
   it("timer (scenario 2): should know in which context it is", async () => {
-    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+    const innerCallback = asyncContext.wrap("Inner", async () => {
       setTimeout(() => {
         setTimeout(() => {
           expect(asyncContext.get()).toBe("Inner");
@@ -70,7 +70,7 @@ describe("AsyncContext / setTimeout", () => {
       }, 0);
     });
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       setTimeout(() => {
         setTimeout(() => {
           expect(asyncContext.get()).toBe("Outer");
@@ -107,7 +107,7 @@ describe("AsyncContext / setTimeout", () => {
   });
 
   it("timer (scenario 3): should know in which context it is", async () => {
-    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+    const innerCallback = asyncContext.wrap("Inner", async () => {
       setTimeout(async () => expect(asyncContext.get()).toBe("Inner"), 0);
       setTimeout(async () => {
         await wait(200);
@@ -127,7 +127,7 @@ describe("AsyncContext / setTimeout", () => {
       }, 10);
     });
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       setTimeout(async () => expect(asyncContext.get()).toBe("Outer"), 0);
       setTimeout(async () => {
         await wait(200);

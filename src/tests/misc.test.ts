@@ -215,13 +215,13 @@ const testContextData = async (contextData: any) => {
     expect(asyncContext.get()).toEqual(contextData);
   };
 
-  const innerCallback = asyncContext.withData(contextData).wrap(async () => {
+  const innerCallback = asyncContext.wrap(contextData, async () => {
     await deepInnerWrapperCallback();
     await wait(100);
     await deepInnerWrapperCallback();
   });
 
-  const total = asyncContext.withData("Outer").wrap(async () => {
+  const total = asyncContext.wrap("Outer", async () => {
     await innerCallback();
   });
 
@@ -231,7 +231,7 @@ const testContextData = async (contextData: any) => {
     await deepInnerWrapperCallback();
   });
 
-  const total2 = asyncContext.withData("Outer2").wrap(async () => {
+  const total2 = asyncContext.wrap("Outer2", async () => {
     await innerCallback2();
   });
 

@@ -60,15 +60,4 @@ export class AsyncVariable<Value = any> {
     // @ts-ignore
     return (...args) => this.run(data, () => callback(...args));
   }
-
-  withData(data: Value) {
-    return {
-      run: <Fn extends AnyFunction>(callback: Fn) => {
-        return this.run(data, callback);
-      },
-      wrap: <Fn extends AnyFunction>(callback: Fn) => {
-        return this.wrap(data, callback);
-      },
-    };
-  }
 }

@@ -19,7 +19,7 @@ describe("AsyncContext / Snapshot", () => {
     const asyncContext = new AsyncContext.Variable();
     let snapshot: AsyncSnapshot = null;
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       snapshot = AsyncContext.Snapshot.create();
     });
 
@@ -40,7 +40,7 @@ describe("AsyncContext / Snapshot", () => {
     const asyncContext = new AsyncContext.Variable();
     let snapshot: AsyncSnapshot = null;
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       await wait(100);
       snapshot = AsyncContext.Snapshot.create();
     });
@@ -64,14 +64,14 @@ describe("AsyncContext / Snapshot", () => {
     const asyncContext = new AsyncContext.Variable();
     const asyncContext2 = new AsyncContext.Variable();
 
-    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+    const innerCallback = asyncContext.wrap("Inner", async () => {
       return asyncContext2.run("Inner 2", async () => {
         await wait(100);
         snapshot = AsyncContext.Snapshot.create();
       });
     });
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       await innerCallback();
     });
 
@@ -123,7 +123,7 @@ describe("AsyncContext / Snapshot", () => {
 
     let snapshot: AsyncSnapshot = null;
 
-    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+    const innerCallback = asyncContext.wrap("Inner", async () => {
       return asyncContext2.run("Inner 2", async () => {
         expect(asyncContext.get()).toBe("Inner");
         asyncContext2.get();
@@ -133,7 +133,7 @@ describe("AsyncContext / Snapshot", () => {
       });
     });
 
-    const total = asyncContext.withData("Outer").wrap(async () => {
+    const total = asyncContext.wrap("Outer", async () => {
       expect(asyncContext.get()).toBe("Outer");
       await innerCallback();
       expect(asyncContext.get()).toBe("Outer");
@@ -149,7 +149,7 @@ describe("AsyncContext / Snapshot", () => {
       expect(asyncContext2.get()).toBe("Inner 2");
       await wait(100);
 
-      asyncContext.withData("Outer:WithinSnapshot").run(async () => {
+      asyncContext.run("Outer:WithinSnapshot", async () => {
         await wait(100);
         expect(asyncContext.get()).toBe("Outer:WithinSnapshot");
         expect(asyncContext2.get()).toBe("Inner 2");
