@@ -1,23 +1,31 @@
 import { AsyncStack } from "./AsyncStack";
-import { createAsyncResolver, withContext } from "./_lib";
+import { createAsyncResolver, callWithContext } from "./_lib";
 
 export const OriginalPromise = Promise;
 
-export const PromiseWithContext = function (callback) {
-  return new OriginalPromise((resolve, reject) => {
-    const fork = AsyncStack.fork();
-    const wrapResolve = createAsyncResolver(fork, resolve);
-    const wrapReject = createAsyncResolver(fork, reject);
-    callback(wrapResolve, wrapReject);
-    fork.yield();
-  });
-};
+export class PromiseWithContext<T> extends OriginalPromise<T> {
+  constructor(callback: any) {
+    super((resolve, reject) => {
+      const fork = AsyncStack.fork();
+      const wrapResolve = createAsyncResolver(fork, resolve);
+      const wrapReject = createAsyncResolver(fork, reject);
+      callback(wrapResolve, wrapReject);
+      fork.yield();
+    })
+  }
 
-OriginalPromise.prototype.then = withContext(OriginalPromise.prototype.then);
-OriginalPromise.prototype.catch = withContext(OriginalPromise.prototype.catch);
-OriginalPromise.prototype.finally = withContext(
-  OriginalPromise.prototype.finally,
-);
+  then<T, B>(...args: any[]) {
+    return callWithContext.call(this, super.then, args)
+  }
+
+  catch<T, B>(...args: any[]) {
+    return callWithContext.call(this, super.catch, args)
+  }
+
+  finally<T, B>(...args: any[]) {
+    return callWithContext.call(this, super.finally, args)
+  }
+}
 
 // Ensure that all methods of the original Promise
 // are available on the new PromiseWithContext

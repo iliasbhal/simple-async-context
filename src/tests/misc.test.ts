@@ -79,6 +79,18 @@ describe("Misc", () => {
 
       wrapped.call("test");
     });
+
+    it('return a Promises', async () => {
+      const createPromise = async () => {
+        await wait(1000);
+        return true;
+      };
+
+      const promise = createPromise();
+
+      expect(promise instanceof Promise).toBe(true);
+      await expect(promise).resolves.toBe(true)
+    })
   });
 
   it("traces back to root context in sync", () => {

@@ -24,6 +24,22 @@ export const createAsyncResolver = (
   };
 };
 
+export function callWithContext(originalCallback: AnyFunction, args: any[]) {
+  const fork = AsyncStack.fork();
+
+  const patchedArgs = args.map((arg) => {
+    if (typeof arg === "function") {
+      return createAsyncResolver(fork, arg);
+    }
+
+    return arg;
+  });
+
+  const result = originalCallback.call(this, ...patchedArgs);
+  fork.yield();
+  return result;
+}
+
 // This function ensure that the context is passed to the callback
 // That is called by the higher order function
 export const withContext = <Callback extends AnyFunction | undefined>(
@@ -33,19 +49,7 @@ export const withContext = <Callback extends AnyFunction | undefined>(
   if (typeof originalCallback === "undefined") return undefined;
 
   return function (...args: any[]) {
-    const fork = AsyncStack.fork();
-
-    const patchedArgs = args.map((arg) => {
-      if (typeof arg === "function") {
-        return createAsyncResolver(fork, arg, onlyOnce);
-      }
-
-      return arg;
-    });
-
-    const result = originalCallback.call(this, ...patchedArgs);
-    fork.yield();
-    return result;
+    return callWithContext.call(this, originalCallback, args);
   } as any;
 };
 
