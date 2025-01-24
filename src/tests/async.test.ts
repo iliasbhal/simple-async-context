@@ -453,4 +453,38 @@ describe("SimpleAsyncContext / Async", () => {
     await total();
     await wait(80);
   });
+
+
+  it("async (scenario 13): should know in which context it is", async () => {
+    const overflowInner = asyncContext.withData("Overflow").wrap(async () => {
+      setTimeout(async () => {
+        expect(asyncContext.get()).toBe("Overflow");
+        await wait(25);
+        expect(asyncContext.get()).toBe("Overflow");
+      }, 100)
+    });
+
+    const innerCallback = asyncContext.withData("Inner").wrap(async () => {
+      expect(asyncContext.get()).toBe("Inner");
+      overflowInner();
+      // console.log(SimpleAsyncContext.getStackId())
+      await wait(30);
+      overflowInner();
+      expect(asyncContext.get()).toBe("Inner");
+      await wait(30);
+      // console.log(SimpleAsyncContext.getStackId())
+      expect(asyncContext.get()).toBe("Inner");
+    });
+
+    await asyncContext.withData("Outer").run(async () => {
+      expect(asyncContext.get()).toBe("Outer");
+      innerCallback();
+      expect(asyncContext.get()).toBe("Outer");
+      await overflowInner();
+      expect(asyncContext.get()).toBe("Outer");
+      await innerCallback();
+      expect(asyncContext.get()).toBe("Outer");
+    });
+  });
+
 });
