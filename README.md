@@ -1,12 +1,5 @@
-<div style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%; height: 300px; background: #FD8013; margin-bottom: 20px">
-  <div style="font-size: 28px; color: black; font-weight: bold;">
-    Simple-Async-Context
-  </div>
-  <div style="position: absolute; bottom: 20px; right: 20px; color: black; font-weight: bold;">
-    TC39 Async Context Polyfill
-  </div>
-</div>
 
+![Illustration](https://github.com/iliasbhal/simple-async-context/blob/main/assets/illustration.png?raw=true)
 
 
 ![NPM License](https://img.shields.io/npm/l/simple-async-context)
