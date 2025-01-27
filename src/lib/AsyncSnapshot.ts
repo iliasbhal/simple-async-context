@@ -1,5 +1,5 @@
 import { AsyncStack } from "../polyfill/AsyncStack";
-import { AsyncVariable } from "./AsyncVariable";
+import { AsyncVariable, AsyncStore } from "./AsyncVariable";
 import { runInFork } from "./utils/runInFork";
 
 type AnyFunction = (...args: any) => any;
@@ -10,7 +10,7 @@ export class AsyncSnapshot {
   private capture() {
     let current = AsyncStack.getCurrent();
     while (current) {
-      const variables = AsyncVariable.variableByStack.get(current);
+      const variables = AsyncStore.variableByStack.get(current);
       variables?.forEach((variable) => {
         const alreadyHasVariable = this.dataByVariable.has(variable);
         if (!alreadyHasVariable) {
@@ -35,10 +35,10 @@ export class AsyncSnapshot {
   run<Fn extends AnyFunction>(callback: Fn) {
     return runInFork(() => {
       const current = AsyncStack.getCurrent();
-      AsyncVariable.stopWalkAt.add(current);
+      AsyncStore.stopWalkAt.add(current);
 
       this.dataByVariable.forEach((data, variable) => {
-        variable.set(current, data);
+        variable.set(data);
       });
 
       return callback();
