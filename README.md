@@ -20,11 +20,11 @@ $ yarn add simple-async-context
 Promises and async/await syntax improved the ergonomics of writing asynchronous JavaScript. It allows developers to think of asynchronous code in terms of synchronous code. The behavior of the event loop executing the code remains the same in an asynchronous block. However, the event loop loses implicit information about the call site.
 
 Knowing the call site of a function is crucial for a variety of purposes. For example, it allows for: (non-exhaustive list)
-	•	Attribution of side effects in software.
-	•	Tracing tools and profilers to analytize the code.
+- Attribution of side effects in software.
+- Tracing tools and profilers to analytize the code.
+- Sharing data between nested functions calls without "prop drilling"
   
 That's why the feature and this polyfill are useful 🙃.
-
 
 ## 📚 How To Use?
 
