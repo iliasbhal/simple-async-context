@@ -1,4 +1,4 @@
-import { AsyncContext } from "../lib/AsyncContext";
+import { AsyncContext } from "../lib/AsyncStack";
 
 type AnyFunction = (...args: any) => any;
 

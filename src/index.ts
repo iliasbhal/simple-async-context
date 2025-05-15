@@ -2,4 +2,4 @@ import { Polyfill } from './polyfills';
 
 Polyfill.ensureEnabled();
 
-export * from './lib/AsyncContext';
+export * from './lib/AsyncStack';
