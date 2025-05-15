@@ -14,13 +14,25 @@ export const createAsyncResolver = (
     called = true;
 
     stack.yield();
+    const fork = AsyncStack.fork()
+
+    try {
+
+      console.log('args', callback, args)
+      const result = callback.call(this, ...args);
+      fork.yield()
+
+      return result;
+    } catch (err) {
+      fork.yield()
+      throw err;
+    }
+
 
     // Note: Is this fork neecessary? All tests are passing without it.
-    // const fork = AsyncStack.fork()
-    const result = callback.call(this, ...args);
-    // fork.yield()
 
-    return result;
+    // console.log('before callback')
+    // console.log('after callback', result)
   };
 };
 
@@ -35,7 +47,9 @@ export function callWithContext(originalCallback: AnyFunction, args: any[]) {
     return arg;
   });
 
+  // console.log('before callWithContext')
   const result = originalCallback.call(this, ...patchedArgs);
+  // console.log('after callWithContext', result)
   fork.yield();
   return result;
 }
@@ -63,6 +77,7 @@ export const runInStack = (stackToUse: AsyncStack, callback: Function) => {
     return result;
   } catch (err) {
     currentStack.start();
+    console.log('runInStack error', err)
     throw err;
   }
 };
