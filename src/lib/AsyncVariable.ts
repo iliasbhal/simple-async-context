@@ -49,7 +49,10 @@ export class AsyncVariable<Value = any> {
     return this.getBox(current)?.value;
   }
 
-  run<Fn extends AnyFunction>(data: Value, callback: Fn) {
+  run<Fn extends AnyFunction>(
+    data: Value,
+    callback: Fn,
+  ): Fn extends (...args: any[]) => infer R ? R : any {
     return runInFork(() => {
       const current = AsyncStack.getCurrent();
       this.setBox(current, {
