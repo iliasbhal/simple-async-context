@@ -41,19 +41,7 @@ export class AsyncSnapshot {
         variable.set(data);
       });
 
-      const result = callback();
-
-      if (result instanceof Promise) {
-        return result.then((v) => {
-          // AsyncStore.stopWalkAt.delete(current);
-          return v;
-        })
-          .catch((err) => {
-            // AsyncStore.stopWalkAt.delete(current);
-            // throw err;
-          });
-      }
-      return result;
+      return callback();
     });
   }
 
