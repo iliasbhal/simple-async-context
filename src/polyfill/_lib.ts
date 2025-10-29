@@ -14,33 +14,33 @@ export const createAsyncResolver = (
     called = true;
 
     stack.yield();
-    const fork = AsyncStack.fork()
+    const nextStack = AsyncStack.fork()
 
     try {
       const result = callback.call(this, ...args);
-      fork.yield()
+      nextStack.yield()
 
       return result;
     } catch (err) {
-      fork.yield()
+      nextStack.yield()
       throw err;
     }
   };
 };
 
 export function callWithContext(originalCallback: AnyFunction, args: any[]) {
-  const fork = AsyncStack.fork();
+  const stack = AsyncStack.fork();
 
   const patchedArgs = args.map((arg) => {
     if (typeof arg === "function") {
-      return createAsyncResolver(fork, arg);
+      return createAsyncResolver(stack, arg);
     }
 
     return arg;
   });
 
   const result = originalCallback.call(this, ...patchedArgs);
-  fork.yield();
+  stack.yield();
   return result;
 }
 

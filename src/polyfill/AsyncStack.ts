@@ -1,6 +1,10 @@
 const GlobalSymbol = Symbol("Global");
 
+let stackId = 0;
+
 export class AsyncStack {
+  public id = stackId++;
+
   // @ts-expect-error
   static Global = new AsyncStack(GlobalSymbol);
   private static current: AsyncStack = AsyncStack.Global;
@@ -18,9 +22,9 @@ export class AsyncStack {
 
   static fork() {
     const origin = AsyncStack.getCurrent();
-    const fork = new AsyncStack(origin);
-    fork.start();
-    return fork;
+    const stack = new AsyncStack(origin);
+    stack.start();
+    return stack;
   }
 
   origin?: AsyncStack;
@@ -36,10 +40,7 @@ export class AsyncStack {
     AsyncStack.set(this);
   }
 
-  // private yielded = false
   yield() {
-    // if (!this.yielded) return;
-    // this.yielded = true;
     AsyncStack.set(this.origin);
   }
 }

@@ -6,14 +6,16 @@ export const OriginalPromise = Promise;
 export class PromiseWithContext<T> extends OriginalPromise<T> {
   constructor(callback: any) {
     super((resolve, reject) => {
-      const fork = AsyncStack.fork();
-      const wrapResolve = createAsyncResolver(fork, resolve);
-      const wrapReject = createAsyncResolver(fork, reject);
+      const stack = AsyncStack.fork();
+      const wrapResolve = createAsyncResolver(stack, resolve);
+      const wrapReject = createAsyncResolver(stack, reject);
+
       callback(
         (...args) => wrapResolve(...args),
         (...args) => wrapReject(...args),
       );
-      fork.yield();
+
+      stack.yield();
     })
   }
 
